@@ -1,0 +1,66 @@
+services:
+  backend:
+    build:
+      context: ./trackerServices
+      dockerfile: Dockerfile
+    command: >
+      sh -c "
+        # Wait for the database to be ready
+        until pg_isready -h db -p 5432; do
+          echo 'Waiting for database to be ready...';
+          sleep 2;
+        done;
+        # Run migrations and start the server
+        python manage.py makemigrations &&
+        python manage.py migrate &&
+        python manage.py runserver 0.0.0.0:8000
+      "
+    volumes:
+      - ./tracker-services:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./tracker/.env
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./tracker-web
+      dockerfile: Dockerfile
+    volumes:
+      - ./tracker-web:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+
+  db:
+    image: postgres:17
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: developmentBudgetDb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: cheematthew10@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: password
+    depends_on:
+      - db
+    restart: always
+
+volumes:
+  postgres_data:
+
