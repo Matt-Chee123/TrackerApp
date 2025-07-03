@@ -1,7 +1,7 @@
 services:
   backend:
     build:
-      context: ./trackerServices
+      context: ./tracker-services
       dockerfile: Dockerfile
     command: >
       sh -c "
@@ -20,7 +20,7 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - ./tracker/.env
+      - ./tracker-services/.env
     depends_on:
       - db
 
@@ -43,7 +43,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: developmentBudgetDb
+      POSTGRES_DB: trackerDb
     ports:
       - "5432:5432"
     volumes:
