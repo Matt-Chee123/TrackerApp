@@ -10,9 +10,10 @@ services:
           echo 'Waiting for database to be ready...';
           sleep 2;
         done;
-        # Run migrations and start the server
+        # Run migrations and load dummy data
         python manage.py makemigrations &&
         python manage.py migrate &&
+        python manage.py load_dummy_data &&
         python manage.py runserver 0.0.0.0:8000
       "
     volumes:
@@ -63,4 +64,3 @@ services:
 
 volumes:
   postgres_data:
-
