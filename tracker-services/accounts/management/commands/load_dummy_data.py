@@ -65,7 +65,7 @@ class Command(BaseCommand):
         for account_data in accounts_data:
             account, created = Account.objects.get_or_create(
                 account_name=account_data['account_name'],
-                user_id=account_data['user']
+                user=account_data['user']  # Changed from user_id to user
             )
             if created:
                 self.stdout.write(f'Created account: {account.account_name}')
@@ -120,7 +120,7 @@ class Command(BaseCommand):
             holding, created = Holdings.objects.get_or_create(
                 name=holding_data['name'],
                 code=holding_data['code'],
-                account_id=holding_data['account'],
+                account=holding_data['account'],  # Changed from account_id to account
                 defaults={
                     'state': holding_data['state'],
                     'quantity': holding_data['quantity'],
@@ -134,7 +134,7 @@ class Command(BaseCommand):
         # Create transactions
         transactions_data = [
             {
-                'portfolio': accounts[0],
+                'account': accounts[0],  # Changed from portfolio to account
                 'holding': holdings[0],
                 'transaction_type': 'buy',
                 'quantity': Decimal('10.500000'),
@@ -143,7 +143,7 @@ class Command(BaseCommand):
                 'transaction_date': timezone.now() - timezone.timedelta(days=30)
             },
             {
-                'portfolio': accounts[0],
+                'account': accounts[0],  # Changed from portfolio to account
                 'holding': holdings[1],
                 'transaction_type': 'buy',
                 'quantity': Decimal('25.000000'),
@@ -152,7 +152,7 @@ class Command(BaseCommand):
                 'transaction_date': timezone.now() - timezone.timedelta(days=25)
             },
             {
-                'portfolio': accounts[1],
+                'account': accounts[1],  # Changed from portfolio to account
                 'holding': holdings[2],
                 'transaction_type': 'buy',
                 'quantity': Decimal('5.250000'),
@@ -161,7 +161,7 @@ class Command(BaseCommand):
                 'transaction_date': timezone.now() - timezone.timedelta(days=20)
             },
             {
-                'portfolio': accounts[1],
+                'account': accounts[1],  # Changed from portfolio to account
                 'holding': holdings[3],
                 'transaction_type': 'buy',
                 'quantity': Decimal('8.000000'),
@@ -170,7 +170,7 @@ class Command(BaseCommand):
                 'transaction_date': timezone.now() - timezone.timedelta(days=15)
             },
             {
-                'portfolio': accounts[2],
+                'account': accounts[2],  # Changed from portfolio to account
                 'holding': holdings[4],
                 'transaction_type': 'buy',
                 'quantity': Decimal('12.750000'),
@@ -182,7 +182,7 @@ class Command(BaseCommand):
 
         for transaction_data in transactions_data:
             transaction, created = Transactions.objects.get_or_create(
-                portfolio=transaction_data['portfolio'],
+                account=transaction_data['account'],  # Changed from portfolio to account
                 holding=transaction_data['holding'],
                 transaction_type=transaction_data['transaction_type'],
                 quantity=transaction_data['quantity'],
