@@ -14,12 +14,12 @@ class AccountSerializer(serializers.ModelSerializer):
 
     def get_total_value(self, obj):
         total = 0
-        for holding in obj.holding_set.all():
+        for holding in obj.holdings_set.all():
             total += (holding.current_price * holding.quantity)
         return total
 
     def get_total_holdings(self, obj):
-        return obj.holding_set.count()
+        return obj.holdings_set.count()
 
     def get_daily_pnl(self, obj): #TODO Do this one
         return
