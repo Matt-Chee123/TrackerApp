@@ -9,5 +9,5 @@ router.register(r'transactions',views.TransactionsViewSet)
 router.register(r'holdings',views.HoldingsViewSet)
 
 urlpatterns = [
-    path('api/', include(router.urls)),
+    path('api/accounts/', include(router.urls)),
 ]
