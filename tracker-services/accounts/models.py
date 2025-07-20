@@ -2,14 +2,14 @@ from django.db import models
 from django.conf import settings
 
 class Account(models.Model):
-    account_name = models.CharField(max_length=30)
+    account_name = models.CharField(max_length=80)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "user_account"
 
 class Holdings(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=80)
     code = models.CharField(max_length=10)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     state = models.CharField(max_length=10)
