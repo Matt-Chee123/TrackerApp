@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from securities.models import Security
 
 class Account(models.Model):
     account_name = models.CharField(max_length=80)
@@ -10,11 +11,10 @@ class Account(models.Model):
 
 class Holdings(models.Model):
     name = models.CharField(max_length=80)
-    code = models.CharField(max_length=10)
+    code = models.ForeignKey(Security, on_delete=models.CASCADE)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     state = models.CharField(max_length=10)
     quantity = models.DecimalField(max_digits=15, decimal_places=6)
-    current_price = models.DecimalField(max_digits=10, decimal_places=2)
     created_date = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
 
