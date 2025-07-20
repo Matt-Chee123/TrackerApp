@@ -15,6 +15,7 @@ class Holdings(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     state = models.CharField(max_length=10)
     quantity = models.DecimalField(max_digits=15, decimal_places=6)
+    current_price = models.DecimalField(max_digits=15, decimal_places=4, null=True, blank=True)
     created_date = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
 
