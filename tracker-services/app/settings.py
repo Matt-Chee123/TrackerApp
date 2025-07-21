@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'django_filters',
     'user',
     'accounts',
-    'securities'
+    'securities '
 ]
 
 
