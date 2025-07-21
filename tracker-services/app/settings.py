@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from decouple import config
+import os
 from django.conf.global_settings import AUTH_USER_MODEL
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -42,11 +43,51 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_filters',
+    'django_celery_beat',
+    'django_celery_results',
     'user',
     'accounts',
     'securities '
 ]
 
+REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+CELERY_ENABLE_UTC = True
+
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+CELERY_TASK_ROUTES = {
+    'your_app.tasks.update_single_security': {'queue': 'securities'},
+    'your_app.tasks.update_all_securities': {'queue': 'securities'},
+    'your_app.tasks.update_dividends_splits': {'queue': 'dividends'},
+}
+
+CELERY_TASK_ANNOTATIONS = {
+    'your_app.tasks.update_single_security': {'rate_limit': '10/m'},
+    'your_app.tasks.update_dividends_splits': {'rate_limit': '5/m'},
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': REDIS_URL,
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+YFINANCE_CONFIG = {
+    'RATE_LIMIT_DELAY': int(os.getenv('YFINANCE_RATE_LIMIT_DELAY', 6)),
+    'MAX_RETRIES': int(os.getenv('YFINANCE_MAX_RETRIES', 3)),
+    'TIMEOUT': int(os.getenv('YFINANCE_TIMEOUT', 30)),
+    'BATCH_SIZE': int(os.getenv('YFINANCE_BATCH_SIZE', 50)),
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
