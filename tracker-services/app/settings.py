@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'securities'
 ]
 
-REDIS_URL = os.getenv('REDIS_URL', 'http://localhost:6379/')
+REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379/0')
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_ACCEPT_CONTENT = ['json']
@@ -62,14 +62,15 @@ CELERY_ENABLE_UTC = True
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 CELERY_TASK_ROUTES = {
-    'app.tasks.update_single_security': {'queue': 'securities'},
-    'app.tasks.update_all_securities': {'queue': 'securities'},
-    'app.tasks.update_dividends_splits': {'queue': 'dividends'},
+    'securities.tasks.update_single_security': {'queue': 'securities'},
+    'securities.tasks.update_all_securities': {'queue': 'securities'},
+    'securities.tasks.update_dividends_splits': {'queue': 'dividends'},
+    'securities.tasks.update_all_dividends_and_splits': {'queue': 'dividends'},
 }
 
 CELERY_TASK_ANNOTATIONS = {
-    'app.tasks.update_single_security': {'rate_limit': '10/m'},
-    'app.tasks.update_dividends_splits': {'rate_limit': '5/m'},
+    'securities.tasks.update_single_security': {'rate_limit': '10/m'},
+    'securities.tasks.update_dividends_splits': {'rate_limit': '5/m'},
 }
 
 CACHES = {
