@@ -1,5 +1,6 @@
 import os
 from celery import Celery
+from celery.schedules import crontab
 
 # Set the default Django settings module
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
@@ -7,3 +8,13 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
 app = Celery('app')  # Note: underscores, not hyphens
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
+
+app.conf.beat_schedule = {
+    'update-securities-daily': {
+        'task': 'securities.tasks.update_all_securities',
+        'schedule': crontab(minute='*'), # crontab(hour=9, minute=0),  # 9 AM daily
+        'args': (['AAPL', 'GOOGL', 'MSFT'],)
+    },
+}
+
+app.conf.timezone = 'UTC'
