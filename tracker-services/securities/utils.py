@@ -212,6 +212,6 @@ def get_single_stock(symbol):
 
 def get_all_symbols():
     print("Retrieving all symbols")
-    symbols = list(Security.objects.only('symbol'))
+    symbols = list(Security.objects.values_list('symbol', flat=True))
     print("Retrieved these symbols: ",symbols)
     return symbols
