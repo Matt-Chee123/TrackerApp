@@ -173,6 +173,7 @@ def get_dividend_and_split_data(symbol, start_date=None):
 
 def bulk_update_securities(symbols):
     results = {}
+    symbols = get_all_symbols()
     for symbol in symbols:
         results[symbol] = update_stock_price(symbol)
     return results
@@ -208,3 +209,9 @@ def get_single_stock(symbol):
     except Exception as e:
         print(f"Error: {e}")
         return False
+
+def get_all_symbols():
+    print("Retrieving all symbols")
+    symbols = list(Security.objects.only('symbol'))
+    print("Retrieved these symbols: ",symbols)
+    return symbols
