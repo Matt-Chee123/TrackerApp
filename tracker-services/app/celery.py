@@ -12,8 +12,7 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'update-securities-daily': {
         'task': 'securities.tasks.update_all_securities',
-        'schedule': crontab(hour='*', minute=0),
-        'args': (['AAPL', 'GOOGL', 'MSFT'],)
+        'schedule': crontab(hour='*', minute=0)
     },
 }
 

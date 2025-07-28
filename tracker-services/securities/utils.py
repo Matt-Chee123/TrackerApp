@@ -171,7 +171,7 @@ def get_dividend_and_split_data(symbol, start_date=None):
         return False
 
 
-def bulk_update_securities(symbols):
+def bulk_update_securities():
     results = {}
     symbols = get_all_symbols()
     for symbol in symbols:

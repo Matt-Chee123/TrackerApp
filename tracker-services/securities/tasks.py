@@ -15,8 +15,8 @@ def update_dividends_splits(symbol):
     return get_dividend_and_split_data(symbol)
 
 @shared_task
-def update_all_securities(symbols):
-    return bulk_update_securities(symbols)
+def update_all_securities():
+    return bulk_update_securities()
 
 @shared_task
 def update_all_dividends_and_splits(symbols):
