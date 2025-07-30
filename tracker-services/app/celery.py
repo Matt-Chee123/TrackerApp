@@ -14,6 +14,10 @@ app.conf.beat_schedule = {
         'task': 'securities.tasks.update_all_securities',
         'schedule': crontab(hour='*/3', minute=0)
     },
+    'update-account-total-daily': {
+        'task': 'accounts.tasks.bulk_update_accounts_total_value',
+        'schedule': crontab(hour='*/3', minute=0)
+    },
 }
 
 app.conf.timezone = 'UTC'
