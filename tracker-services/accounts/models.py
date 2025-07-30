@@ -18,6 +18,17 @@ class Holdings(models.Model):
     current_price = models.DecimalField(max_digits=15, decimal_places=4, null=True, blank=True)
     created_date = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
+    target_weight = models.DecimalField(max_digits=5, decimal_places=4, null=True, blank=True)
+    actual_weight = models.DecimalField(max_digits=5, decimal_places=4, null=True, blank=True)
+    last_rebalance_date = models.DateTimeField(null=True, blank=True)
+    average_cost = models.DecimalField(max_digits=15, decimal_places=4, null=True, blank=True)
+    total_cost_basis = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    unrealized_gain_loss = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    unrealized_gain_loss_pct = models.DecimalField(max_digits=10, decimal_places=6, null=True, blank=True)
+    min_weight_constraint = models.DecimalField(max_digits=5, decimal_places=4, null=True, blank=True)
+    max_weight_constraint = models.DecimalField(max_digits=5, decimal_places=4, null=True, blank=True)
+    is_core_holding = models.BooleanField(default=False)
+    is_restricted = models.BooleanField(default=False)
 
     class Meta:
         db_table = "holdings"
