@@ -5,6 +5,13 @@ from securities.models import Security
 class Account(models.Model):
     account_name = models.CharField(max_length=80)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    total_market_value = models.DecimalField(max_digits=20, decimal_places=4, null=True, blank=True)
+    cash_balance = models.DecimalField(max_digits=20, decimal_places=4, null=True, blank=True)
+    net_worth = models.DecimalField(max_digits=20, decimal_places=4, null=True, blank=True)
+    unrealized_gain_loss = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    unrealized_gain_loss_pct = models.DecimalField(max_digits=10, decimal_places=6, null=True, blank=True)
+    last_rebalance_date = models.DateTimeField(null=True, blank=True)
+    drift_threshold = models.DecimalField(max_digits=5, decimal_places=4, default=0.05)
 
     class Meta:
         db_table = "user_account"
