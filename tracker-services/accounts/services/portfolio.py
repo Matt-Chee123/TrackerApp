@@ -9,6 +9,48 @@ class PortfolioService:
 
 
     @staticmethod
+    def update_portfolio_stats():
+        pass
+
+    @staticmethod
+    def update_holdings_stats():
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                WITH lot_unrealised AS (
+                  SELECT
+                    l.holding_id AS holding,
+                    SUM((s.last_price - l.purchase_price) * l.remaining_quantity) AS unrealised_pnl,
+                    SUM(l.remaining_quantity * l.purchase_price) AS total_cost,
+                    SUM(l.remaining_quantity) AS quantity
+                  FROM lots l
+                  JOIN holdings h ON h.id = l.holding_id
+                  JOIN security s ON h.code_id = s.symbol
+                  WHERE l.is_closed = false
+                  GROUP BY l.holding_id
+                )
+                UPDATE holdings
+                SET
+                  current_price = s.last_price,
+                  quantity = lu.quantity,
+                  unrealized_gain_loss = lu.unrealised_pnl,
+                  unrealized_gain_loss_pct = CASE
+                    WHEN lu.total_cost > 0 THEN lu.unrealised_pnl / lu.total_cost * 100
+                    ELSE 0
+                  END
+                FROM lot_unrealised lu,
+                     security s
+                WHERE holdings.id = lu.holding
+                AND holdings.code_id = s.symbol
+            """)
+
+    @staticmethod
+    def update_holdings_from_prices():
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT * FROM holdings
+            """)
+
+    @staticmethod
     def calculate_holding_pnl():
 
         holdings = PortfolioService.get_all_holdings()

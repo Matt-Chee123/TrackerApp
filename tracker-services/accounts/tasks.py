@@ -7,8 +7,4 @@ from .services.portfolio import PortfolioService
 
 @shared_task
 def update_all_net_worths():
-    return bulk_update_accounts_total_value()
-
-@shared_task
-def update_all_pnls():
-    PortfolioService.calculate_holding_pnl()
+    return PortfolioService.update_portfolio_stats()

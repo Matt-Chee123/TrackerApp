@@ -15,12 +15,8 @@ app.conf.beat_schedule = {
         'schedule': crontab(hour='*/3', minute='0')
     },
     'update-account-total-daily': {
-        'task': 'accounts.tasks.update_all_net_worths',
+        'task': 'accounts.tasks.update_portfolio_metrics',
         'schedule': crontab(hour='*/3', minute='0')
-    },
-    'update-holding-pnl': {
-        'task': 'accounts.tasks.update_all_pnls',
-        'schedule': crontab(hour='*/3',minute='10')
     }
 }
 

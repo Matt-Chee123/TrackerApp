@@ -67,7 +67,6 @@ CELERY_TASK_ROUTES = {
     'securities.tasks.update_dividends_splits': {'queue': 'dividends'},
     'securities.tasks.update_all_dividends_and_splits': {'queue': 'dividends'},
     'accounts.tasks.update_all_net_worths': {'queue': 'accounts'},
-    'accounts.tasks.update_all_pnls': {'queue': 'accounts'},
 }
 
 CELERY_TASK_ANNOTATIONS = {
