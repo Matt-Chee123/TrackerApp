@@ -20,7 +20,7 @@ app.conf.beat_schedule = {
     },
     'update-holding-pnl': {
         'task': 'accounts.tasks.update_all_pnls',
-        'schedule': crontab(minute='*')
+        'schedule': crontab(hour='*/3',minute='10')
     }
 }
 

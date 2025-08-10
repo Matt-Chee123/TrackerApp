@@ -11,4 +11,4 @@ def update_all_net_worths():
 
 @shared_task
 def update_all_pnls():
-    return PortfolioService.get_current_market_price()
+    PortfolioService.calculate_holding_pnl()
