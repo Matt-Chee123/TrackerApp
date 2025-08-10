@@ -10,7 +10,30 @@ class PortfolioService:
 
     @staticmethod
     def update_portfolio_stats():
-        pass
+        PortfolioService.update_holdings_stats()
+        PortfolioService.update_account_stats()
+
+    @staticmethod
+    def update_account_stats():
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                WITH holdings_stats AS (
+                  SELECT
+                    h.account_id AS account,
+					SUM(h.current_price * h.quantity) AS total_value,
+					SUM(h.unrealized_gain_loss) AS gain
+                  FROM holdings h
+				  GROUP BY h.account_id
+                                )
+                UPDATE user_account
+                SET
+                  total_market_value = hs.total_value,
+				  unrealized_gain_loss = hs.gain,
+				  net_worth = hs.total_value + cash_balance
+                FROM holdings_stats hs
+                WHERE user_account.id = hs.account
+                ;
+            """)
 
     @staticmethod
     def update_holdings_stats():
@@ -20,7 +43,7 @@ class PortfolioService:
                   SELECT
                     l.holding_id AS holding,
                     SUM((s.last_price - l.purchase_price) * l.remaining_quantity) AS unrealised_pnl,
-                    SUM(l.remaining_quantity * l.purchase_price) AS total_cost,
+                    SUM(l.remaining_quantity * l.purchase_price + l.fees) AS total_cost,
                     SUM(l.remaining_quantity) AS quantity
                   FROM lots l
                   JOIN holdings h ON h.id = l.holding_id
@@ -32,6 +55,7 @@ class PortfolioService:
                 SET
                   current_price = s.last_price,
                   quantity = lu.quantity,
+				  total_cost_basis = lu.total_cost,
                   unrealized_gain_loss = lu.unrealised_pnl,
                   unrealized_gain_loss_pct = CASE
                     WHEN lu.total_cost > 0 THEN lu.unrealised_pnl / lu.total_cost * 100
@@ -40,7 +64,7 @@ class PortfolioService:
                 FROM lot_unrealised lu,
                      security s
                 WHERE holdings.id = lu.holding
-                AND holdings.code_id = s.symbol
+                AND holdings.code_id = s.symbol;
             """)
 
     @staticmethod
