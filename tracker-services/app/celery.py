@@ -12,12 +12,16 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'update-securities-daily': {
         'task': 'securities.tasks.update_all_securities',
-        'schedule': crontab(hour='*/3', minute=0)
+        'schedule': crontab(hour='*/3', minute='0')
     },
     'update-account-total-daily': {
-        'task': 'accounts.tasks.bulk_update_accounts_total_value',
-        'schedule': crontab(hour='*/3', minute=0)
+        'task': 'accounts.tasks.update_all_net_worths',
+        'schedule': crontab(hour='*/3', minute='0')
     },
+    'update-holding-pnl': {
+        'task': 'accounts.tasks.update_all_pnls',
+        'schedule': crontab(minute='*')
+    }
 }
 
 app.conf.timezone = 'UTC'

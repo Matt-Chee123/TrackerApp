@@ -59,14 +59,15 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 CELERY_ENABLE_UTC = True
 
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+#CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 CELERY_TASK_ROUTES = {
     'securities.tasks.update_single_security': {'queue': 'securities'},
     'securities.tasks.update_all_securities': {'queue': 'securities'},
     'securities.tasks.update_dividends_splits': {'queue': 'dividends'},
     'securities.tasks.update_all_dividends_and_splits': {'queue': 'dividends'},
-    'accounts.tasks.bulk_update_accounts_total_value': {'queue': 'accounts'},
+    'accounts.tasks.update_all_net_worths': {'queue': 'accounts'},
+    'accounts.tasks.update_all_pnls': {'queue': 'accounts'},
 }
 
 CELERY_TASK_ANNOTATIONS = {

@@ -11,17 +11,12 @@ class PortfolioService:
         pass
 
     @staticmethod
-    def get_current_market_price(symbol):
+    def get_current_market_price():
         with connection.cursor() as cursor:
-            latest_price = cursor.execute("""
-            UPDATE user_account AS acc
-            SET net_worth = sub.total + COALESCE(acc.cash_balance, 0), total_market_value = sub.total
-            FROM (
-                SELECT account_id, SUM(quantity * current_price) AS total
-                FROM holdings
-                GROUP BY account_id
-            ) AS sub
-            WHERE acc.id = sub.account_id;
-        """)
+            cursor.execute("""
+                SELECT * FROM security WHERE symbol = %s
+            """, ['AAPL'])
+            row = cursor.fetchone()
+        return row[0] if row else None
 
 
