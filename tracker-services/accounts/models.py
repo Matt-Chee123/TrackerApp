@@ -16,6 +16,7 @@ class Account(models.Model):
     class Meta:
         db_table = "user_account"
 
+
 class Holdings(models.Model):
     name = models.CharField(max_length=80)
     code = models.ForeignKey(Security, on_delete=models.CASCADE)
@@ -40,6 +41,7 @@ class Holdings(models.Model):
     class Meta:
         db_table = "holdings"
 
+
 class Transactions(models.Model):
     TRANSACTION_TYPE = [
         ('buy', 'Buy'),
@@ -56,3 +58,17 @@ class Transactions(models.Model):
 
     class Meta:
         db_table = "transactions"
+
+
+class Lots(models.Model):
+    holding = models.ForeignKey(Holdings, on_delete=models.CASCADE)
+    quantity = models.DecimalField(max_digits=10, decimal_places=6)
+    remaining_quantity = models.DecimalField(max_digits=10, decimal_places=6)
+    purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
+    purchase_date = models.DateTimeField(auto_now_add=True)
+    total_cost = models.DecimalField(max_digits=15, decimal_places=2)
+    fees = models.DecimalField(max_digits=10, decimal_places=2)
+    is_closed = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = "lots"

@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from accounts.models import Account, Holdings, Transactions
+from accounts.models import Account, Holdings, Transactions, Lots
 from securities.models import Security, PriceHistory
 from decimal import Decimal
 import random
@@ -518,4 +518,27 @@ class Command(BaseCommand):
                 weight = (value / total_value * 100) if total_value > 0 else 0
                 self.stdout.write(
                     f'  {security.symbol} ({security.sector}): {holding.quantity} shares = ${value:,.2f} ({weight:.1f}%)'
+                )
+        holdings = Holdings.objects.all()[:5]
+
+        for holding in holdings:
+            # Create exactly 2 lots per holding (example)
+            for _ in range(2):
+                original_qty = Decimal('50.123456')  # fixed quantity
+                remaining_qty = Decimal('25.123456')  # fixed remaining quantity
+                purchase_price = Decimal('150.75')  # fixed purchase price
+                fees = Decimal('5.25')  # fixed fees
+                total_cost = (purchase_price * original_qty) + fees
+                purchase_date = timezone.now() - timedelta(days=100)  # fixed purchase date 100 days ago
+                is_closed = remaining_qty == 0
+
+                lot = Lots.objects.create(
+                    holding=holding,
+                    quantity=original_qty,
+                    remaining_quantity=remaining_qty,
+                    purchase_price=purchase_price,
+                    purchase_date=purchase_date,
+                    total_cost=total_cost,
+                    fees=fees,
+                    is_closed=is_closed,
                 )
