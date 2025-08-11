@@ -21,7 +21,8 @@ class PortfolioService:
                   SELECT
                     h.account_id AS account,
 					SUM(h.current_price * h.quantity) AS total_value,
-					SUM(h.unrealized_gain_loss) AS gain
+					SUM(h.unrealized_gain_loss) AS gain,
+					SUM(h.total_cost_basis) AS total_cost
                   FROM holdings h
 				  GROUP BY h.account_id
                                 )
@@ -29,7 +30,11 @@ class PortfolioService:
                 SET
                   total_market_value = hs.total_value,
 				  unrealized_gain_loss = hs.gain,
-				  net_worth = hs.total_value + cash_balance
+				  net_worth = hs.total_value + cash_balance,
+				  unrealized_gain_loss_pct = CASE
+				    WHEN hs.total_cost > 0 THEN hs.gain / hs.total_cost * 100
+                    ELSE 0
+				END
                 FROM holdings_stats hs
                 WHERE user_account.id = hs.account
                 ;
