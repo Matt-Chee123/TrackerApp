@@ -24,7 +24,6 @@ def update_all_securities():
 @shared_task
 def update_price_history_data():
     service = PriceHistoryService()
-    print("123498765")
     return service.update_price_history()
 
 @shared_task
