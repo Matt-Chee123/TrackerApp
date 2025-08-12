@@ -12,7 +12,11 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'update-securities-daily': {
         'task': 'securities.tasks.update_all_securities',
-        'schedule': crontab(minute='*/10')
+        'schedule': crontab(minute='*/30')
+    },
+    'update-price-history-daily': {
+        'task': 'securities.tasks.update_price_history_data',
+        'schedule': crontab(minute='*/2')
     },
     'update-account-total-daily': {
         'task': 'accounts.tasks.update_portfolio_metrics',

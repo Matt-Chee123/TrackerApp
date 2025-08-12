@@ -5,6 +5,9 @@ from .utils import (
     bulk_update_securities,
     bulk_update_dividends_and_splits,
 )
+from .security_services.security import SecurityService
+from .security_services.priceHistory import PriceHistoryService
+
 
 @shared_task
 def update_single_security(symbol):
@@ -16,7 +19,11 @@ def update_dividends_splits(symbol):
 
 @shared_task
 def update_all_securities():
-    return bulk_update_securities()
+    return SecurityService.update_price_history()
+
+@shared_task
+def update_price_history_data():
+    return PriceHistoryService.update_price_history()
 
 @shared_task
 def update_all_dividends_and_splits(symbols):
