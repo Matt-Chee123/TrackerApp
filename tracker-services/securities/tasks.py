@@ -19,11 +19,13 @@ def update_dividends_splits(symbol):
 
 @shared_task
 def update_all_securities():
-    return SecurityService.update_price_history()
+    return
 
 @shared_task
 def update_price_history_data():
-    return PriceHistoryService.update_price_history()
+    service = PriceHistoryService()
+    print("123498765")
+    return service.update_price_history()
 
 @shared_task
 def update_all_dividends_and_splits(symbols):

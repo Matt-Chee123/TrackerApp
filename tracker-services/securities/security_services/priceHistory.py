@@ -9,9 +9,11 @@ import pandas as pd
 class PriceHistoryService:
 
     def __init__(self):
-        pass
+        self.symbols = self.get_all_symbols()
 
     def update_price_history(self):
+        print("here")
+        print(self.symbols)
         pass
 
 

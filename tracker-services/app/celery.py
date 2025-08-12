@@ -16,7 +16,7 @@ app.conf.beat_schedule = {
     },
     'update-price-history-daily': {
         'task': 'securities.tasks.update_price_history_data',
-        'schedule': crontab(minute='*/2')
+        'schedule': crontab(minute='*')
     },
     'update-account-total-daily': {
         'task': 'accounts.tasks.update_portfolio_metrics',
