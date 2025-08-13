@@ -22,6 +22,6 @@ def update_price_history_data():
 def update_snapshot_data():
     print("updating snapshot data")
     service = MarketSnapshotService()
-    return
+    return service.update_snapshot_data()
 
 

@@ -2,7 +2,7 @@ import yfinance as yf
 from django.utils import timezone
 from datetime import datetime, timedelta
 from decimal import Decimal
-from ..models import Security, PriceHistory
+from ..models import Security, MarketSnapshot
 import pandas as pd
 from datetime import date, timedelta
 
@@ -59,7 +59,7 @@ class MarketSnapshotService:
             df.loc[len(df)] = row
 
         print(df.head())
-        return tickers
+        return df
 
     def create_snapshot_df(self):
         columns = [
@@ -69,3 +69,42 @@ class MarketSnapshotService:
             'market_timestamp', 'previous_close'
         ]
         return pd.DataFrame(columns=columns)
+
+    def update_snapshot_data(self):
+        if self.market_data.empty:
+            print("No market data to update.")
+            return
+
+        for _, row in self.market_data.iterrows():
+            symbol = row['security']
+            print(f"Updating market snapshot for {symbol}")
+            print(row)
+
+            try:
+                security_obj = Security.objects.get(symbol=symbol)
+            except Security.DoesNotExist:
+                print(f"Security {symbol} not found in DB, skipping.")
+                continue
+
+            def to_decimal(val):
+                return Decimal(str(val)) if val is not None and not pd.isna(val) else None
+
+            MarketSnapshot.objects.update_or_create(
+                security=security_obj,
+                defaults={
+                    'last_price': to_decimal(row['last_price']),
+                    'bid_price': to_decimal(row['bid_price']),
+                    'ask_price': to_decimal(row['ask_price']),
+                    'bid_size': row['bid_size'],
+                    'ask_size': row['ask_size'],
+                    'open_price': to_decimal(row['open_price']),
+                    'high_price': to_decimal(row['high_price']),
+                    'low_price': to_decimal(row['low_price']),
+                    'previous_close': to_decimal(row['previous_close']),
+                    'volume': int(row['volume']) if row['volume'] is not None else 0,
+                    'change_amount': to_decimal(row['change_amount']),
+                    'change_percent': to_decimal(row['change_percent']),
+                    'market_timestamp': row['market_timestamp'],
+                }
+            )
+        return

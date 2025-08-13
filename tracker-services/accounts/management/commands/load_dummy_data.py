@@ -178,23 +178,6 @@ class Command(BaseCommand):
                 'last_price': Decimal('275.90'),
                 'average_volume': 3500000,
             },
-            # Conservative/Value stocks
-            {
-                'symbol': 'BRK.B',
-                'name': 'Berkshire Hathaway Inc.',
-                'short_name': 'Berkshire Hathaway',
-                'asset_class': 'EQUITY',
-                'security_type': 'Common Stock',
-                'primary_exchange': 'NYSE',
-                'country': 'US',
-                'sector': 'FINANCIALS',
-                'industry': 'Multi-Sector Holdings',
-                'sub_industry': 'Multi-Sector Holdings',
-                'market_cap': 900000000000,  # $900B
-                'shares_outstanding': 2330000000,
-                'last_price': Decimal('385.60'),
-                'average_volume': 3200000,
-            },
             {
                 'symbol': 'JNJ',
                 'name': 'Johnson & Johnson',
@@ -460,8 +443,6 @@ class Command(BaseCommand):
             {'code': 'ADBE', 'account': accounts[1], 'quantity': Decimal('12.500000')},
             {'code': 'CRM', 'account': accounts[1], 'quantity': Decimal('22.750000')},
 
-            # Bob's conservative retirement portfolio
-            {'code': 'BRK.B', 'account': accounts[2], 'quantity': Decimal('45.000000')},
             {'code': 'JNJ', 'account': accounts[2], 'quantity': Decimal('60.250000')},
             {'code': 'PG', 'account': accounts[2], 'quantity': Decimal('35.500000')},
             {'code': 'KO', 'account': accounts[2], 'quantity': Decimal('80.000000')},
