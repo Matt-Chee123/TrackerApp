@@ -64,7 +64,7 @@ CELERY_ENABLE_UTC = True
 CELERY_TASK_ROUTES = {
     'securities.tasks.update_price_history_data': {'queue': 'securities'},
     'securities.tasks.update_all_securities': {'queue': 'securities'},
-    'securities.tasks.update-snapshot-data': {'queue': 'securities'},
+    'securities.tasks.update_snapshot_data': {'queue': 'securities'},
 }
 
 CELERY_TASK_ANNOTATIONS = {

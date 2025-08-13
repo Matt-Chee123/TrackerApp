@@ -9,4 +9,10 @@ from datetime import date, timedelta
 class MarketSnapshotService:
 
     def __init__(self):
-        pass
+        this.symbols
+
+    def get_all_symbols(self):
+        print("Retrieving all symbols")
+        symbols = list(Security.objects.values_list('symbol', flat=True))
+        print("Retrieved these symbols: ",symbols)
+        return symbols
