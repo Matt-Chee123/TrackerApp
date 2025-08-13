@@ -37,8 +37,6 @@ class PriceHistoryService:
     def get_1d_return(self, data):
         pass
 
-
-
     def get_security_data(self):
         if not self.symbols:
             print("No symbols found.")

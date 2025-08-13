@@ -7,15 +7,7 @@ from .utils import (
 )
 from .security_services.security import SecurityService
 from .security_services.priceHistory import PriceHistoryService
-
-
-@shared_task
-def update_single_security(symbol):
-    return update_stock_price(symbol)
-
-@shared_task
-def update_dividends_splits(symbol):
-    return get_dividend_and_split_data(symbol)
+from .security_services.marketSnapshot import MarketSnapshotService
 
 @shared_task
 def update_all_securities():
@@ -27,5 +19,8 @@ def update_price_history_data():
     return service.update_price_history()
 
 @shared_task
-def update_all_dividends_and_splits(symbols):
-    return bulk_update_dividends_and_splits(symbols)
+def update_snapshot_data():
+    print("updating snapshot data")
+    service = MarketSnapshotService()
+
+
