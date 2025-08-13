@@ -46,6 +46,7 @@ class Security(models.Model):
     ], null=True, blank=True)
 
     industry = models.CharField(max_length=100, null=True, blank=True)
+    sub_industry = models.CharField(max_length=100, null=True, blank=True)
     market_cap = models.BigIntegerField(null=True, blank=True)
     shares_outstanding = models.BigIntegerField(null=True, blank=True)
 
