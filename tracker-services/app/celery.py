@@ -23,7 +23,7 @@ app.conf.beat_schedule = {
         'schedule': crontab(hour='*/3', minute='0')
     },
     'update-snapshot-data': {
-        'task': 'accounts.tasks.update_snapshot_data',
+        'task': 'securities.tasks.update_snapshot_data',
         'schedule': crontab(minute='*')
     }
 }
