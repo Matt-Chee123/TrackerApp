@@ -32,24 +32,21 @@ class MarketSnapshotService:
             ticker = tickers.tickers[symbol]
             info = ticker.info
 
-            hist = ticker.history(period="1d", interval="1m")
             print("information for ", symbol)
             print(info)
-            print("history for ", symbol)
-            print(hist)
-            latest_data = hist.iloc[-1]
+
 
             row = {
                 'security': symbol,
-                'last_price': info.get('currentPrice') or latest_data['Close'],
+                'last_price': info.get('currentPrice'),
                 'bid_price': info.get('bid'),
                 'ask_price': info.get('ask'),
                 'bid_size': info.get('bidSize'),
                 'ask_size': info.get('askSize'),
-                'open_price': info.get('open') or latest_data['Open'],
-                'high_price': info.get('dayHigh') or latest_data['High'],
-                'low_price': info.get('dayLow') or latest_data['Low'],
-                'volume': info.get('volume') or int(latest_data['Volume']),
+                'open_price': info.get('open'),
+                'high_price': info.get('dayHigh'),
+                'low_price': info.get('dayLow'),
+                'volume': info.get('volume'),
                 'change_amount': 0, #TODO
                 'change_percent': 0, #TODO
                 'market_timestamp': timezone.now(),
