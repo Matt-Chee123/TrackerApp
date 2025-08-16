@@ -82,7 +82,7 @@ class MarketSnapshotService:
             symbol = row['security']
             if math.isnan(row['last_price']):
                 print("last price doesn't exist")
-                row['last_price'] = yf.Ticker("IXUS").history(period="1d")['Close'].iloc[-1]
+                row['last_price'] = yf.Ticker(symbol).history(period="1d")['Close'].iloc[-1]
 
             row['change_amount'], row['change_percent'] = self.calculate_change_amount(row['last_price'], row['previous_close'])
 
