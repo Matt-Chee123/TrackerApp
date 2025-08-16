@@ -24,7 +24,7 @@ app.conf.beat_schedule = {
     },
     'update-snapshot-data': {
         'task': 'securities.tasks.update_snapshot_data',
-        'schedule': crontab(minute='*')
+        'schedule': crontab(minute='*/5')
     }
 }
 
