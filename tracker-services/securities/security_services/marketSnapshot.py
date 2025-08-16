@@ -14,9 +14,7 @@ class MarketSnapshotService:
         self.market_data = self.retrieve_market_data(self.symbols)
 
     def get_all_symbols(self):
-        print("Retrieving all symbols")
         symbols = list(Security.objects.values_list('symbol', flat=True))
-        print("Retrieved these symbols: ",symbols)
         return symbols
 
     def retrieve_market_data(self,symbols):
@@ -32,10 +30,6 @@ class MarketSnapshotService:
         for symbol in symbols:
             ticker = tickers.tickers[symbol]
             info = ticker.info
-
-            print("information for ", symbol)
-            print(info)
-
 
             row = {
                 'security': symbol,
@@ -56,13 +50,23 @@ class MarketSnapshotService:
 
             df.loc[len(df)] = row
 
-        print(df.head())
         return df
 
     def calculate_change_amount(self, last_price, previous_close):
         change_amount = last_price - previous_close
         change_perc = change_amount / previous_close * 100
         return change_amount, change_perc
+
+    def calculate_avg_volume(self):
+        hist = yf.download(self.symbols, period="30d", group_by='ticker', threads=True)
+        volume_data = {}
+        for symbol in self.symbols:
+            symbol_data = hist[symbol]['Volume']
+            volume_data[symbol] = {
+                'avg_10d': int(symbol_data.tail(10).mean()),
+                'avg_30d': int(symbol_data.mean())
+            }
+        return volume_data
 
     def create_snapshot_df(self):
         columns = [
@@ -78,18 +82,16 @@ class MarketSnapshotService:
             print("No market data to update.")
             return
 
+        avg_volumes = self.calculate_avg_volume()
+
         for _, row in self.market_data.iterrows():
             symbol = row['security']
+            volume_data = avg_volumes[symbol]
             if math.isnan(row['last_price']):
                 print("last price doesn't exist")
                 row['last_price'] = yf.Ticker(symbol).history(period="1d")['Close'].iloc[-1]
 
             row['change_amount'], row['change_percent'] = self.calculate_change_amount(row['last_price'], row['previous_close'])
-
-            print("xxxxxxxxxxxxxxxx")
-            print("cleaned data")
-            print(row)
-            print("xxxxxxxxxxxxxxxxx")
 
             try:
                 security_obj = Security.objects.get(symbol=symbol)
@@ -116,6 +118,8 @@ class MarketSnapshotService:
                     'change_amount': to_decimal(row['change_amount']),
                     'change_percent': to_decimal(row['change_percent']),
                     'market_timestamp': row['market_timestamp'],
+                    'avg_volume_10d': volume_data['avg_10d'],
+                    'avg_volume_30d': volume_data['avg_30d']
                 }
             )
         return
