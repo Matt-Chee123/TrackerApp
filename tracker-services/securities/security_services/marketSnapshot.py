@@ -4,7 +4,8 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from ..models import Security, MarketSnapshot
 import pandas as pd
-from datetime import date, timedelta
+import math
+
 
 class MarketSnapshotService:
 
@@ -58,6 +59,11 @@ class MarketSnapshotService:
         print(df.head())
         return df
 
+    def calculate_change_amount(self, last_price, previous_close):
+        change_amount = last_price - previous_close
+        change_perc = change_amount / previous_close * 100
+        return change_amount, change_perc
+
     def create_snapshot_df(self):
         columns = [
             'security', 'last_price', 'bid_price', 'ask_price',
@@ -74,8 +80,16 @@ class MarketSnapshotService:
 
         for _, row in self.market_data.iterrows():
             symbol = row['security']
-            print(f"Updating market snapshot for {symbol}")
+            if math.isnan(row['last_price']):
+                print("last price doesn't exist")
+                row['last_price'] = yf.Ticker("IXUS").history(period="1d")['Close'].iloc[-1]
+
+            row['change_amount'], row['change_percent'] = self.calculate_change_amount(row['last_price'], row['previous_close'])
+
+            print("xxxxxxxxxxxxxxxx")
+            print("cleaned data")
             print(row)
+            print("xxxxxxxxxxxxxxxxx")
 
             try:
                 security_obj = Security.objects.get(symbol=symbol)
