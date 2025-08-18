@@ -8,6 +8,7 @@ from .utils import (
 from .security_services.security import SecurityService
 from .security_services.priceHistory import PriceHistoryService
 from .security_services.marketSnapshot import MarketSnapshotService
+from .security_services.technicalIndicators import TechnicalIndicatorService
 
 @shared_task
 def update_all_securities():
@@ -28,3 +29,9 @@ def update_snapshot_data():
 def update_securities_prices():
     service = SecurityService()
     return service.update_security_prices()
+
+@shared_task
+def update_technical_indicators():
+    service = TechnicalIndicatorService()
+    return
+

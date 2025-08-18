@@ -29,6 +29,10 @@ app.conf.beat_schedule = {
     'update-snapshot-data': {
         'task': 'securities.tasks.update_snapshot_data',
         'schedule': crontab(minute='*/5')
+    },
+    'update-tech-indicators-daily': {
+        'task': 'securities.tasks.update_technical_indicators',
+        'schedule': crontab(minute='*')
     }
 }
 
