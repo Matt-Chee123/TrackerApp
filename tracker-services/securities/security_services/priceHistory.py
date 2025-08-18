@@ -21,7 +21,7 @@ class PriceHistoryService:
             print(info)
             day_return = self.get_1d_return(info)
             price_history, created = PriceHistory.objects.update_or_create(
-                symbol=symbol,
+                security_id=symbol,
                 date=self.current_date,
                 defaults={
                     'open_price': info["Open"].iloc[0],
