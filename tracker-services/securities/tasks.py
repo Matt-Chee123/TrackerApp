@@ -33,5 +33,6 @@ def update_securities_prices():
 @shared_task
 def update_technical_indicators():
     service = TechnicalIndicatorService()
+    service.update_technical_indicators_df()
     return
 
