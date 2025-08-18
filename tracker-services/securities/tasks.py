@@ -24,4 +24,7 @@ def update_snapshot_data():
     service = MarketSnapshotService()
     return service.update_snapshot_data()
 
-
+@shared_task
+def update_securities_prices():
+    service = SecurityService()
+    return service.update_security_prices()

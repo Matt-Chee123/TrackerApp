@@ -3,7 +3,7 @@ from django.utils import timezone
 from decimal import Decimal
 from datetime import timedelta
 
-
+#TODO add further metrics e.g. pe ratio ...
 class Security(models.Model):
     """Main security definition"""
 

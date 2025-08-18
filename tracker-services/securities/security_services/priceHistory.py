@@ -7,7 +7,7 @@ import pandas as pd
 from datetime import date, timedelta
 
 class PriceHistoryService:
-
+ #TODO: check this is working as only 4 symbols being updates
     def __init__(self):
         self.symbols = self.get_all_symbols()
         self.current_date = date.today()
