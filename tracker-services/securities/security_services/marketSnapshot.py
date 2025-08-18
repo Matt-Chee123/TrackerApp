@@ -57,6 +57,7 @@ class MarketSnapshotService:
         change_perc = change_amount / previous_close * 100
         return change_amount, change_perc
 
+    #TODO : change this to be daily
     def calculate_avg_volume(self):
         hist = yf.download(self.symbols, period="30d", group_by='ticker', threads=True)
         volume_data = {}

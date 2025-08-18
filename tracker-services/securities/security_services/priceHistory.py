@@ -5,6 +5,7 @@ from decimal import Decimal
 from ..models import Security, PriceHistory
 import pandas as pd
 from datetime import date, timedelta
+from django.db import connection
 
 class PriceHistoryService:
  #TODO: check this is working as only 4 symbols being updates
@@ -28,12 +29,32 @@ class PriceHistoryService:
                     'close_price': info["Close"].iloc[0],
                     'adjusted_close': info["Adj Close"].iloc[0],
                     'volume': info["Volume"].iloc[0],
+                    'return_1d': day_return
                 }
             )
+        self.update_security_average_volume()
         pass
 
+    def update_security_average_volume(self):
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                WITH volume_data AS (
+                    SELECT 
+                        security_id,
+                        AVG(volume) AS average_volume 
+                    FROM securities_pricehistory 
+                    WHERE date >= CURRENT_DATE - INTERVAL '30 days' 
+                    GROUP BY security_id
+                )
+                UPDATE security SET average_volume = vd.average_volume
+                FROM volume_data AS vd
+                WHERE symbol = vd.security_id
+                 """)
+            return
+
     def get_1d_return(self, data):
-        pass
+        result = data['Close'] - data['Open']
+        return float(result.iloc[0])
 
     def get_security_data(self):
         if not self.symbols:
