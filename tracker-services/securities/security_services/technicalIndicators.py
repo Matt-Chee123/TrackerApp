@@ -2,7 +2,7 @@ import yfinance as yf
 from django.utils import timezone
 from datetime import datetime, timedelta
 from decimal import Decimal
-from ..models import Security, PriceHistory
+from ..models import Security, PriceHistory, TechnicalIndicators
 import pandas as pd
 import math
 from django.db import connection
@@ -61,6 +61,9 @@ class TechnicalIndicatorService:
         return df
 
     def update_technical_indicators_df(self):
+        calculated_data = self.calculate_indicators()
+
+    def calculate_indicators(self):
         rows = []
         for symbol in self.symbols:
             symbol_df = self.data[self.data['symbol'] == symbol]
@@ -95,7 +98,7 @@ class TechnicalIndicatorService:
                 'resistance_level': resistance_level,
             })
         print(rows)
-        return
+        return rows
 
     def calc_sma(self, data, days):
         return data['close_price'].rolling(window=days, min_periods=1).mean().iloc[-1]
