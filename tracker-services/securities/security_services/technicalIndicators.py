@@ -6,7 +6,7 @@ from ..models import Security, PriceHistory, TechnicalIndicators
 import pandas as pd
 import math
 from django.db import connection
-
+from decimal import Decimal
 
 class TechnicalIndicatorService:
 
@@ -60,12 +60,40 @@ class TechnicalIndicatorService:
         df = pd.DataFrame(data, columns=columns)
         return df
 
+    def to_decimal(self, val):
+        return Decimal(str(val)) if val is not None and not pd.isna(val) else None
+
     def update_technical_indicators_df(self):
         calculated_data = self.calculate_indicators()
+
+        for row in calculated_data:
+            if row['symbol'] == 'IXUS':
+                continue
+
+            TechnicalIndicators.objects.update_or_create(
+                security=row['symbol'],
+                date=row['date'],
+                defaults={
+                    'sma_20': self.to_decimal(row['sma_20']),
+                    'sma_50': self.to_decimal(row['sma_50']),
+                    'sma_200': self.to_decimal(row['sma_200']),
+                    'ema_12': self.to_decimal(row['ema_12']),
+                    'ema_26': self.to_decimal(row['ema_26']),
+                    'rsi_14': self.to_decimal(row['rsi_14']),
+                    'macd_line': self.to_decimal(row['macd_line']),
+                    'macd_signal': 0,  # TODO: need more data
+                    'bb_upper': self.to_decimal(row['bb_upper']),
+                    'bb_middle': self.to_decimal(row['bb_middle']),
+                    'bb_lower': self.to_decimal(row['bb_lower']),
+                    'support_level': self.to_decimal(row['support_level']),
+                    'resistance_level': self.to_decimal(row['resistance_level']),
+                }
+            )
 
     def calculate_indicators(self):
         rows = []
         for symbol in self.symbols:
+            print(self.data.head())
             symbol_df = self.data[self.data['symbol'] == symbol]
             symbol_df = symbol_df.sort_values('date')
             print(symbol_df.head())
