@@ -71,7 +71,7 @@ class TechnicalIndicatorService:
                 continue
 
             TechnicalIndicators.objects.update_or_create(
-                security=row['symbol'],
+                security_id=row['symbol'],
                 date=row['date'],
                 defaults={
                     'sma_20': self.to_decimal(row['sma_20']),
