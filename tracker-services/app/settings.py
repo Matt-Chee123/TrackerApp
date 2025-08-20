@@ -67,6 +67,7 @@ CELERY_TASK_ROUTES = {
     'securities.tasks.update_securities_prices': {'queue': 'securities'},
     'securities.tasks.update_snapshot_data': {'queue': 'securities'},
     'securities.tasks.update_technical_indicators': {'queue': 'securities'},
+    'securities.tasks.update_short_term_risk_metrics': {'queue': 'securities'},
 }
 
 CELERY_TASK_ANNOTATIONS = {

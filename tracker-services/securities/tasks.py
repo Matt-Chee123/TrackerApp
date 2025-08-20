@@ -1,14 +1,9 @@
 from celery import shared_task
-from .utils import (
-    update_stock_price,
-    get_dividend_and_split_data,
-    bulk_update_securities,
-    bulk_update_dividends_and_splits,
-)
 from .security_services.security import SecurityService
 from .security_services.priceHistory import PriceHistoryService
 from .security_services.marketSnapshot import MarketSnapshotService
 from .security_services.technicalIndicators import TechnicalIndicatorService
+from . security_services.riskMetrics import  RiskMetricsService
 
 @shared_task
 def update_all_securities():
@@ -36,3 +31,8 @@ def update_technical_indicators():
     service.update_technical_indicators_df()
     return
 
+@shared_task
+def update_short_term_risk_metrics():
+    service = RiskMetricsService()
+
+    return
