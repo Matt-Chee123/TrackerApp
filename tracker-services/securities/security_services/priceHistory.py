@@ -18,7 +18,7 @@ class PriceHistoryService:
 
         for symbol in self.symbols:
             info = self.data[symbol]
-            day_return = self.get_1d_return(info)
+            day_return = self.get_1d_return(info, symbol)
             price_history, created = PriceHistory.objects.update_or_create(
                 security_id=symbol,
                 date=self.current_date,
@@ -52,9 +52,18 @@ class PriceHistoryService:
                  """)
             return
 
-    def get_1d_return(self, data):
-        result = data['Close'] - data['Open']
-        return float(result.iloc[0])
+    def get_1d_return(self, data, symbol):
+        yesterday = self.current_date - timedelta(days=1)
+
+        yesterday_record = PriceHistory.objects.filter(
+            security_id=symbol,
+            date__lt=self.current_date
+        ).order_by('-date').first()
+
+        yesterday_close = float(yesterday_record.close_price)
+        today_close = float(data['Close'])
+        result = (today_close - yesterday_close) / yesterday_close
+        return float(result)
 
     def get_security_data(self):
         if not self.symbols:
