@@ -72,18 +72,17 @@ class RiskMetricsService:
         for symbol, symbol_df in grouped_data:
             for lookback in self.lookbackArray:
                 spliced_df = symbol_df.tail(lookback)
-                returns = data['return_1d'].astype('float')
+                returns = spliced_df['return_1d'].astype('float')
 
                 print(symbol)
                 print(spliced_df.head())
 
-                total_return = self.calc_total_return(spliced_df)
+                total_return = self.calc_total_return(returns)
                 annualized_return = self.calc_annualized_return(total_return, len(returns))
                 volatility_annualized = self.calc_volatility_annualized(returns)
 
-
-                print(annualized_return)
-                print(volatility_annualized)
+                print(
+                    f"{symbol}: Annual Return: {annualized_return * 100:.1f}%, Volatility: {volatility_annualized * 100:.1f}%")
 
                 data.append({
                     'security': symbol,
