@@ -6,6 +6,11 @@ from securities.models import Security, PriceHistory
 from decimal import Decimal
 import random
 from datetime import timedelta, date
+import yfinance as yf
+from datetime import timedelta
+from decimal import Decimal
+import random
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -378,27 +383,36 @@ class Command(BaseCommand):
             securities[security.symbol] = security
 
         # Generate some sample price history for a few securities
-        sample_symbols = ['AAPL', 'MSFT', 'TSLA', 'VOO']
-
+        end_date = timezone.now().date()
+        sample_symbols = [
+            'AAPL', '^VIX', '^GSPC', 'MSFT', 'NVDA', 'META', 'TSLA', 'AMZN', 'GOOGL',
+            'NFLX', 'ADBE', 'CRM', 'JNJ', 'PG', 'KO', '^TNX', 'WMT', 'VOO', 'IXUS',
+            'GME', 'AMC'
+        ]
+        # Fetch 1 year of historical data from Yahoo Finance for each symbol
         for symbol in sample_symbols:
-            security = securities[symbol]
+            # Fetch historical data for the symbol (from 1 year ago)
+            data = yf.download(symbol, start=(end_date - timedelta(days=365)), end=end_date)
+
+            # Fetch the security object from your database
+            security = securities.get(symbol)
             current_price = security.last_price
 
-            # Generate 60 days of price history
-            for days_ago in range(60, 0, -1):
-                price_date = timezone.now().date() - timedelta(days=days_ago)
+            # Loop through the data from yfinance (ignoring dividends, split ratios)
+            for idx, row in data.iterrows():
+                price_date = idx.date()
 
-                # Simple random walk for demo data
-                price_change = Decimal(str(random.uniform(-0.05, 0.05)))  # ±5% daily change
-                base_price = current_price * (1 + price_change)
+                # Use yfinance data for OHLCV (Open, High, Low, Close, Volume)
+                open_price = float(row['Open'])
+                high_price = float(row['High'])
+                low_price = float(row['Low'])
+                close_price = float(row['Close'])
+                volume = float(row['Volume'])
 
-                # Generate OHLC data
-                open_price = base_price * Decimal(str(random.uniform(0.98, 1.02)))
-                high_price = base_price * Decimal(str(random.uniform(1.00, 1.05)))
-                low_price = base_price * Decimal(str(random.uniform(0.95, 1.00)))
-                close_price = base_price
-                volume = random.randint(int(security.average_volume * 0.5), int(security.average_volume * 1.5))
+                # Optionally adjust close price if required
+                adjusted_close = close_price  # Or apply any adjustments
 
+                # Create or update the PriceHistory object
                 price_history, created = PriceHistory.objects.get_or_create(
                     security=security,
                     date=price_date,
@@ -407,16 +421,15 @@ class Command(BaseCommand):
                         'high_price': high_price,
                         'low_price': low_price,
                         'close_price': close_price,
-                        'adjusted_close': close_price,
+                        'adjusted_close': adjusted_close,
                         'volume': volume,
-                        'dividend_amount': Decimal('0'),
-                        'split_ratio': Decimal('1.0'),
+                        'dividend_amount': Decimal('0'),  # No dividend data in yfinance for this example
+                        'split_ratio': Decimal('1.0'),  # No split ratio for simplicity
                     }
                 )
 
-                if created and days_ago % 10 == 0:  # Print every 10th day
-                    self.stdout.write(f'Created price history for {symbol} on {price_date}')
-
+                if created and price_date.day % 10 == 0:  # Print every 10th day
+                    print(f'Created price history for {symbol} on {price_date}')
         # Create users (same as before)
         users_data = [
             {
