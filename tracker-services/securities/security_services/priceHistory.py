@@ -63,6 +63,12 @@ class PriceHistoryService:
         yesterday_close = float(yesterday_record.close_price)
         today_close = float(data['Close'])
         result = (today_close - yesterday_close) / yesterday_close
+
+        print("xxxxxxxxxxxxxx")
+        print(symbol)
+        print(yesterday_close)
+        print(today_close)
+        print(result)
         return float(result)
 
     def get_security_data(self):
