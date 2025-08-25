@@ -36,7 +36,7 @@ app.conf.beat_schedule = {
     },
     'update-short-term-risk-data': {
         'task': 'securities.tasks.update_short_term_risk_metrics',
-        'schedule': crontab(minute='*') #crontab(hour='21',minute='15')
+        'schedule': crontab(hour='*',minute='10') #crontab(hour='21',minute='15')
     }
 }
 
