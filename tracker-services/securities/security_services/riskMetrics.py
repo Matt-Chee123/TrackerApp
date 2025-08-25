@@ -15,7 +15,7 @@ class RiskMetricsService:
 
     def __init__(self):
         self.symbols = self.get_all_symbols()
-        self.lookbackArray = [30]
+        self.lookbackArray = [30,90]
         self.current_date = timezone.now().date()
         self.cutoff_date = self.current_date - timedelta(days=int(252 * 1.4))
         self.data_returns = self.get_1d_returns()
@@ -84,9 +84,37 @@ class RiskMetricsService:
 
         return df
 
-    def update_risk_model(self):
-        self.calculate_risk_indicators()
-        return
+    def update_risk_metrics(self):
+        """Update or create risk metrics for each symbol and lookback period."""
+        metrics_data = self.calculate_risk_indicators()  # First calculate the risk metrics
+
+        for metric in metrics_data:
+            # Use update_or_create to either update an existing record or create a new one
+            risk_metrics_instance, created = RiskMetrics.objects.update_or_create(
+                security=metric['security'],
+                calculation_date=metric['calculation_date'],
+                lookback_period=metric['lookback_period'],
+                defaults={
+                    'total_return': metric['total_return'],
+                    'annualized_return': metric['annualized_return'],
+                    'volatility_annualized': metric['volatility_annualized'],
+                    'max_drawdown': metric['max_drawdown'],
+                    'var_95': metric['var_95'],
+                    'var_99': metric['var_99'],
+                    'beta': metric['beta'],
+                    'correlation_market': metric['correlation_market'],
+                    'sharpe_ratio': metric['sharpe_ratio'],
+                    'sortino_ratio': metric['sortino_ratio'],
+                    'alpha': metric['alpha'],
+                })
+
+            if created:
+                print(f"Created new record for {metric['security'].symbol} with {metric['lookback_period']} lookback.")
+            else:
+                print(
+                    f"Updated existing record for {metric['security'].symbol} with {metric['lookback_period']} lookback.")
+
+        return len(metrics_data)
 
     def calculate_risk_indicators(self):
         data = []
@@ -108,15 +136,18 @@ class RiskMetricsService:
                 var_99 = self.calc_var_hist_weighted(returns, 0.99, 0.94)
                 beta = self.calc_beta(returns, market_returns)
                 correlation_market = self.calculate_correlation_market(returns, market_returns)
+                sharpe_ratio = self.calc_sharpe_ratio(returns)
+                sortino_ratio = self.calc_sortino_ratio(returns)
+                alpha = self.calc_alpha(returns, market_returns, beta)
 
 
 
                 print(
                     f"{symbol}: Total return {total_return} Annual Return: {annualized_return * 100:.1f}%, Volatility: {volatility_annualized * 100:.1f}%")
-                print("Value at risk 95: ", var_95, "var at risk 99:", var_99, "beta", beta)
+                print("Value at risk 95: ", var_95, "var at risk 99:", var_99, "beta", beta, "sharpre ratio", sharpe_ratio, "sortino ratio", sortino_ratio)
 
                 data.append({
-                    'security': symbol,
+                    'security': Security.objects.get(symbol=symbol),
                     'calculation_date': self.current_date,
                     'lookback_period': lookback,
                     'total_return': total_return,
@@ -127,12 +158,13 @@ class RiskMetricsService:
                     'var_99': var_99,
                     'beta': beta,
                     'correlation_market': correlation_market,
-                    'sharpe_ratio': 0,
-                    'sortino_ratio': 0,
-                    'alpha': 0,
+                    'sharpe_ratio': sharpe_ratio,
+                    'sortino_ratio': sortino_ratio,
+                    'alpha': alpha,
                 })
 
-        return
+        return data
+
 
     def calc_total_return(self, returns):
         sum = np.prod(returns + 1) - 1
@@ -191,6 +223,32 @@ class RiskMetricsService:
 
         return correlation
 
-    def calc_sharpe_ratio(self, data):
+    def calc_sharpe_ratio(self, returns):
+        excess_returns = returns - self.risk_free_rate / 252
+        sharpe_ratio = excess_returns.mean() / excess_returns.std() * math.sqrt(252)
+        return sharpe_ratio
 
-        return
+    def calc_sortino_ratio(self, returns):
+        excess_returns = returns - self.risk_free_rate / 252
+
+        downside_returns = excess_returns[excess_returns < 0]
+
+        downside_deviation = downside_returns.std() if len(downside_returns) > 0 else np.nan
+
+        if downside_deviation != 0:
+            sortino_ratio = excess_returns.mean() / downside_deviation * math.sqrt(252)
+        else:
+            sortino_ratio = np.nan
+
+        return sortino_ratio
+
+    def calc_alpha(self, returns, market_returns, beta):
+        market_return = market_returns.mean()
+        expected_return = self.risk_free_rate / 252 + beta * (market_return - self.risk_free_rate / 252)
+
+        actual_return = returns.mean()
+
+        alpha = actual_return - expected_return
+
+        alpha_annualized = alpha * 252
+        return alpha_annualized

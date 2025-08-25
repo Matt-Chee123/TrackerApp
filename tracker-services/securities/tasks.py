@@ -34,5 +34,5 @@ def update_technical_indicators():
 @shared_task
 def update_short_term_risk_metrics():
     service = RiskMetricsService()
-    service.update_risk_model ()
+    service.update_risk_metrics()
     return
