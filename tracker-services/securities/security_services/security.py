@@ -14,9 +14,7 @@ class SecurityService:
 
 
     def get_all_symbols(self):
-        print("Retrieving all symbols")
         symbols = list(Security.objects.values_list('symbol', flat=True))
-        print("Retrieved these symbols: ",symbols)
         return symbols
 
     def update_security_prices(self):

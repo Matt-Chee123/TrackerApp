@@ -86,7 +86,6 @@ class PortfolioService:
         for holding in holdings:
             lots = PortfolioService.get_all_lots_for_holding(holding['id'])
             unrealised_pnl = PortfolioService.calculate_unrealised_pnl(holding,lots)
-            print(unrealised_pnl)
             PortfolioService.update_holding_pnl(holding['id'], unrealised_pnl)
 
     @staticmethod

@@ -40,7 +40,6 @@ def get_asset_class(type):
 
 
 def update_stock_price(symbol):
-    print(f"Updating stock data for {symbol}")
     try:
         ticker = yf.Ticker(symbol)
         info = ticker.info
@@ -114,11 +113,9 @@ def update_stock_price(symbol):
                 if created:
                     updated_count += 1
 
-            print(f"Successfully updated {symbol}: {updated_count} new price records, {len(hist)} total")
             return True
         else:
             security.save()
-            print(f"Updated {symbol} info but no historical data found")
             return True
 
     except Exception as e:

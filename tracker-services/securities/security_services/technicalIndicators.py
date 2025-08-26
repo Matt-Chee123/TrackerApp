@@ -93,10 +93,8 @@ class TechnicalIndicatorService:
     def calculate_indicators(self):
         rows = []
         for symbol in self.symbols:
-            print(self.data.head())
             symbol_df = self.data[self.data['symbol'] == symbol]
             symbol_df = symbol_df.sort_values('date')
-            print(symbol_df.head())
             sma_20 = self.calc_sma(symbol_df, 20)
             sma_50 = self.calc_sma(symbol_df, 50)
             sma_200 = self.calc_sma(symbol_df, 200)
@@ -125,7 +123,6 @@ class TechnicalIndicatorService:
                 'support_level': support_level,
                 'resistance_level': resistance_level,
             })
-        print(rows)
         return rows
 
     def calc_sma(self, data, days):

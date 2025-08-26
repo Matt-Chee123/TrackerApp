@@ -108,12 +108,6 @@ class RiskMetricsService:
                     'alpha': metric['alpha'],
                 })
 
-            if created:
-                print(f"Created new record for {metric['security'].symbol} with {metric['lookback_period']} lookback.")
-            else:
-                print(
-                    f"Updated existing record for {metric['security'].symbol} with {metric['lookback_period']} lookback.")
-
         return len(metrics_data)
 
     def calculate_risk_indicators(self):
@@ -139,12 +133,6 @@ class RiskMetricsService:
                 sharpe_ratio = self.calc_sharpe_ratio(returns)
                 sortino_ratio = self.calc_sortino_ratio(returns)
                 alpha = self.calc_alpha(returns, market_returns, beta)
-
-
-
-                print(
-                    f"{symbol}: Total return {total_return} Annual Return: {annualized_return * 100:.1f}%, Volatility: {volatility_annualized * 100:.1f}%")
-                print("Value at risk 95: ", var_95, "var at risk 99:", var_99, "beta", beta, "sharpre ratio", sharpe_ratio, "sortino ratio", sortino_ratio)
 
                 data.append({
                     'security': Security.objects.get(symbol=symbol),
@@ -211,8 +199,6 @@ class RiskMetricsService:
         return covariance / market_variance
 
     def calculate_correlation_market(self, stock_data, market_data):
-        print("Original Stock Data:", stock_data.head())
-        print("Original Market Data:", market_data.head())
 
         stock_data_reset = stock_data.reset_index(drop=True)
         market_data_reset = market_data.reset_index(drop=True)
