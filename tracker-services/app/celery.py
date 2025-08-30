@@ -27,7 +27,7 @@ app.conf.beat_schedule = {
         'schedule':  crontab(minute='*')#crontab(hour='*/3', minute='0')
     },
     'update-account-total-daily': {
-        'task': 'accounts.tasks.update_all_net_worths',
+        'task': 'accounts.tasks.update_all_portfolio_stats',
         'schedule': crontab(minute='*')  # crontab(hour='*/3', minute='0')
     },
     'update-snapshot-data': {
