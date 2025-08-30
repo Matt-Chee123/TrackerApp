@@ -7,4 +7,5 @@ from .services.portfolio import PortfolioService
 
 @shared_task
 def update_all_net_worths():
-    return PortfolioService.update_portfolio_stats()
+    service = PortfolioService()
+    return

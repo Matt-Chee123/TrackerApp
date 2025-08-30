@@ -7,129 +7,142 @@ from django.db import connection
 
 class PortfolioService:
 
+    def __init__(self):
+        self.user_data = self.get_all_user_data()
+        return
 
-    @staticmethod
-    def update_portfolio_stats():
-        PortfolioService.update_holdings_stats()
-        PortfolioService.update_account_stats()
-
-    @staticmethod
-    def update_account_stats():
+    def get_all_user_data(self):
         with connection.cursor() as cursor:
             cursor.execute("""
-                WITH holdings_stats AS (
-                  SELECT
-                    h.account_id AS account,
-					SUM(h.current_price * h.quantity) AS total_value,
-					SUM(h.unrealized_gain_loss) AS gain,
-					SUM(h.total_cost_basis) AS total_cost
-                  FROM holdings h
-				  GROUP BY h.account_id
-                                )
-                UPDATE user_account
-                SET
-                  total_market_value = hs.total_value,
-				  unrealized_gain_loss = hs.gain,
-				  net_worth = hs.total_value + cash_balance,
-				  unrealized_gain_loss_pct = CASE
-				    WHEN hs.total_cost > 0 THEN hs.gain / hs.total_cost * 100
-                    ELSE 0
-				END
-                FROM holdings_stats hs
-                WHERE user_account.id = hs.account
-                ;
-            """)
+                SELECT user_id, id FROM user_account;
+             """)
 
-    @staticmethod
-    def update_holdings_stats():
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                WITH lot_unrealised AS (
-                  SELECT
-                    l.holding_id AS holding,
-                    SUM((s.last_price - l.purchase_price) * l.remaining_quantity) AS unrealised_pnl,
-                    SUM(l.remaining_quantity * l.purchase_price + l.fees) AS total_cost,
-                    SUM(l.remaining_quantity) AS quantity
-                  FROM lots l
-                  JOIN holdings h ON h.id = l.holding_id
-                  JOIN security s ON h.code_id = s.symbol
-                  WHERE l.is_closed = false
-                  GROUP BY l.holding_id
-                )
-                UPDATE holdings
-                SET
-                  current_price = s.last_price,
-                  quantity = lu.quantity,
-				  total_cost_basis = lu.total_cost,
-                  unrealized_gain_loss = lu.unrealised_pnl,
-                  unrealized_gain_loss_pct = CASE
-                    WHEN lu.total_cost > 0 THEN lu.unrealised_pnl / lu.total_cost * 100
-                    ELSE 0
-                  END
-                FROM lot_unrealised lu,
-                     security s
-                WHERE holdings.id = lu.holding
-                AND holdings.code_id = s.symbol;
-            """)
-
-    @staticmethod
-    def update_holdings_from_prices():
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT * FROM holdings
-            """)
-
-    @staticmethod
-    def calculate_holding_pnl():
-
-        holdings = PortfolioService.get_all_holdings()
-        for holding in holdings:
-            lots = PortfolioService.get_all_lots_for_holding(holding['id'])
-            unrealised_pnl = PortfolioService.calculate_unrealised_pnl(holding,lots)
-            PortfolioService.update_holding_pnl(holding['id'], unrealised_pnl)
-
-    @staticmethod
-    def get_current_market_price():
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT * FROM security
-            """)
-            columns = [col[0] for col in cursor.description]
             rows = cursor.fetchall()
-        return [dict(zip(columns, row)) for row in rows]
+            print(rows)
+        return rows
 
-    @staticmethod
-    def get_all_holdings():
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT * FROM holdings
-            """)
-            columns = [col[0] for col in cursor.description]
-            rows = cursor.fetchall()
-        return [dict(zip(columns, row)) for row in rows]
-
-    @staticmethod
-    def get_all_lots_for_holding(holding):
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT * FROM lots WHERE holding_id = %s AND is_closed = false
-            """, [holding])
-            columns = [col[0] for col in cursor.description]
-            rows = cursor.fetchall()
-        return [dict(zip(columns, row)) for row in rows]
-
-    @staticmethod
-    def update_holding_pnl(holding, value):
-        with connection.cursor() as cursor:
-            cursor.execute("""
-            UPDATE holdings
-            SET unrealized_gain_loss = %s, last_updated = NOW()
-            WHERE holdings.id = %s;
-                        """, [value, holding])
-
-    @staticmethod
-    def calculate_unrealised_pnl(holding,lots):
-        total_cost = 0
-        for lot in lots:
-            total_cost += lot['total_cost']
-        return (holding['current_price'] * holding['quantity']) - total_cost
+    # @staticmethod
+    # def update_portfolio_stats():
+    #     PortfolioService.update_holdings_stats()
+    #     PortfolioService.update_account_stats()
+    #
+    # @staticmethod
+    # def update_account_stats():
+    #     with connection.cursor() as cursor:
+    #         cursor.execute("""
+    #             WITH holdings_stats AS (
+    #               SELECT
+    #                 h.account_id AS account,
+	# 				SUM(h.current_price * h.quantity) AS total_value,
+	# 				SUM(h.unrealized_gain_loss) AS gain,
+	# 				SUM(h.total_cost_basis) AS total_cost
+    #               FROM holdings h
+	# 			  GROUP BY h.account_id
+    #                             )
+    #             UPDATE user_account
+    #             SET
+    #               total_market_value = hs.total_value,
+	# 			  unrealized_gain_loss = hs.gain,
+	# 			  net_worth = hs.total_value + cash_balance,
+	# 			  unrealized_gain_loss_pct = CASE
+	# 			    WHEN hs.total_cost > 0 THEN hs.gain / hs.total_cost * 100
+    #                 ELSE 0
+	# 			END
+    #             FROM holdings_stats hs
+    #             WHERE user_account.id = hs.account
+    #             ;
+    #         """)
+    #
+    # @staticmethod
+    # def update_holdings_stats():
+    #     with connection.cursor() as cursor:
+    #         cursor.execute("""
+    #             WITH lot_unrealised AS (
+    #               SELECT
+    #                 l.holding_id AS holding,
+    #                 SUM((s.last_price - l.purchase_price) * l.remaining_quantity) AS unrealised_pnl,
+    #                 SUM(l.remaining_quantity * l.purchase_price + l.fees) AS total_cost,
+    #                 SUM(l.remaining_quantity) AS quantity
+    #               FROM lots l
+    #               JOIN holdings h ON h.id = l.holding_id
+    #               JOIN security s ON h.code_id = s.symbol
+    #               WHERE l.is_closed = false
+    #               GROUP BY l.holding_id
+    #             )
+    #             UPDATE holdings
+    #             SET
+    #               current_price = s.last_price,
+    #               quantity = lu.quantity,
+	# 			  total_cost_basis = lu.total_cost,
+    #               unrealized_gain_loss = lu.unrealised_pnl,
+    #               unrealized_gain_loss_pct = CASE
+    #                 WHEN lu.total_cost > 0 THEN lu.unrealised_pnl / lu.total_cost * 100
+    #                 ELSE 0
+    #               END
+    #             FROM lot_unrealised lu,
+    #                  security s
+    #             WHERE holdings.id = lu.holding
+    #             AND holdings.code_id = s.symbol;
+    #         """)
+    #
+    # @staticmethod
+    # def update_holdings_from_prices():
+    #     with connection.cursor() as cursor:
+    #         cursor.execute("""
+    #             SELECT * FROM holdings
+    #         """)
+    #
+    # @staticmethod
+    # def calculate_holding_pnl():
+    #
+    #     holdings = PortfolioService.get_all_holdings()
+    #     for holding in holdings:
+    #         lots = PortfolioService.get_all_lots_for_holding(holding['id'])
+    #         unrealised_pnl = PortfolioService.calculate_unrealised_pnl(holding,lots)
+    #         PortfolioService.update_holding_pnl(holding['id'], unrealised_pnl)
+    #
+    # @staticmethod
+    # def get_current_market_price():
+    #     with connection.cursor() as cursor:
+    #         cursor.execute("""
+    #             SELECT * FROM security
+    #         """)
+    #         columns = [col[0] for col in cursor.description]
+    #         rows = cursor.fetchall()
+    #     return [dict(zip(columns, row)) for row in rows]
+    #
+    # @staticmethod
+    # def get_all_holdings():
+    #     with connection.cursor() as cursor:
+    #         cursor.execute("""
+    #             SELECT * FROM holdings
+    #         """)
+    #         columns = [col[0] for col in cursor.description]
+    #         rows = cursor.fetchall()
+    #     return [dict(zip(columns, row)) for row in rows]
+    #
+    # @staticmethod
+    # def get_all_lots_for_holding(holding):
+    #     with connection.cursor() as cursor:
+    #         cursor.execute("""
+    #             SELECT * FROM lots WHERE holding_id = %s AND is_closed = false
+    #         """, [holding])
+    #         columns = [col[0] for col in cursor.description]
+    #         rows = cursor.fetchall()
+    #     return [dict(zip(columns, row)) for row in rows]
+    #
+    # @staticmethod
+    # def update_holding_pnl(holding, value):
+    #     with connection.cursor() as cursor:
+    #         cursor.execute("""
+    #         UPDATE holdings
+    #         SET unrealized_gain_loss = %s, last_updated = NOW()
+    #         WHERE holdings.id = %s;
+    #                     """, [value, holding])
+    #
+    # @staticmethod
+    # def calculate_unrealised_pnl(holding,lots):
+    #     total_cost = 0
+    #     for lot in lots:
+    #         total_cost += lot['total_cost']
+    #     return (holding['current_price'] * holding['quantity']) - total_cost

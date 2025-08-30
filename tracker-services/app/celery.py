@@ -22,9 +22,13 @@ app.conf.beat_schedule = {
         'task': 'securities.tasks.update_price_history_data',
         'schedule': crontab(hour='*',minute='0')#crontab(hour='21',minute='0')
     },
-    'update-account-total-daily': {
+    'update-account-holdings-daily': {
         'task': 'accounts.tasks.update_portfolio_metrics',
-        'schedule': crontab(hour='*/3', minute='0')
+        'schedule':  crontab(minute='*')#crontab(hour='*/3', minute='0')
+    },
+    'update-account-total-daily': {
+        'task': 'accounts.tasks.update_all_net_worths',
+        'schedule': crontab(minute='*')  # crontab(hour='*/3', minute='0')
     },
     'update-snapshot-data': {
         'task': 'securities.tasks.update_snapshot_data',
