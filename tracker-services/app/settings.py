@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'django_celery_results',
     'user',
     'accounts',
-    'securities'
+    'securities',
+    'utils'
 ]
 
 REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379/0')
