@@ -14,7 +14,7 @@ class PortfolioService:
     def get_all_user_data(self):
         with connection.cursor() as cursor:
             cursor.execute("""
-                SELECT user_id, id FROM user_account;
+                SELECT user_id, id FROM portfolio;
              """)
 
             rows = cursor.fetchall()
@@ -38,7 +38,7 @@ class PortfolioService:
                   FROM holdings h
 				  GROUP BY h.account_id
                                 )
-                UPDATE user_account
+                UPDATE portfolio
                 SET
                   total_market_value = hs.total_value,
 				  unrealized_gain_loss = hs.gain,
@@ -48,7 +48,7 @@ class PortfolioService:
                     ELSE 0
 				END
                 FROM holdings_stats hs
-                WHERE user_account.id = hs.account
+                WHERE portfolio.id = hs.account
                 ;
             """)
 

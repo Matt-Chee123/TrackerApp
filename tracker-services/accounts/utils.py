@@ -8,7 +8,7 @@ from django.db import connection
 def bulk_update_accounts_total_value():
     with connection.cursor() as cursor:
         cursor.execute("""
-            UPDATE user_account AS acc
+            UPDATE portfolio AS acc
             SET net_worth = sub.total + COALESCE(acc.cash_balance, 0), total_market_value = sub.total
             FROM (
                 SELECT account_id, SUM(quantity * current_price) AS total
