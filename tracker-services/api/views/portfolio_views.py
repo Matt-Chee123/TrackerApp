@@ -1,0 +1,41 @@
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from accounts.models import Account, Holdings
+from securities.models import Security
+from api.serializers import PortfolioSerializer, HoldingSerializer
+from core.services.portfolio_service import PortfolioService
+
+class PortfolioListCreateView(generics.ListCreateAPIView):
+    queryset = Account.objects.all()
+    serializer_class = PortfolioSerializer
+
+class PortfolioDetailView(generics.RetrieveAPIView):
+    queryset = Account.objects.all()
+    serializer_class = PortfolioSerializer
+
+@api_view(['POST'])
+def add_holding(request, portfolio_id):
+    try:
+        portfolio = Account.objects.get(id=portfolio_id)
+        security = Security.objects.get(symbol=request.data['symbol'])
+        quantity = request.data['quantity']
+        avg_price = request.data['average_price']
+
+        Holdings.objects.create(
+            portfolio=portfolio,
+            security=security,
+            quantity=quantity,
+            average_price=avg_price
+        )
+        return Response({'message': 'Holding added successfully'})
+    except Account.DoesNotExist:
+        return Response({'error': 'Portfolio not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Security.DoesNotExist:
+        return Response({'error': 'Security not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def portfolio_value(request, portfolio_id):
+    service = PortfolioService()
+    total_value = service.get_portfolio_value(portfolio_id)
+    return Response({'portfolio_id': portfolio_id, 'total_value': total_value})

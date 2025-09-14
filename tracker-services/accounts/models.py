@@ -18,7 +18,7 @@ class Account(models.Model):
 
 
 class Holdings(models.Model):
-    name = models.CharField(max_length=80)
+    name = models.CharField(max_length=80, null=True, blank=True)
     code = models.ForeignKey(Security, on_delete=models.CASCADE)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     state = models.CharField(max_length=10)
@@ -53,12 +53,12 @@ class Transactions(models.Model):
         ('interest', 'Interest'),
     ]
 
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, null=True, blank=True)
     holding = models.ForeignKey(Holdings, on_delete=models.CASCADE, null=True, blank=True)
     transaction_type = models.CharField(max_length=10, choices=TRANSACTION_TYPE)
     quantity = models.DecimalField(max_digits=15, decimal_places=6, null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    amount = models.DecimalField(max_digits=15, decimal_places=2)
+    amount = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
     description = models.TextField(blank=True)
     fees = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     transaction_date = models.DateTimeField()
