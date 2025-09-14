@@ -63,7 +63,6 @@ class Security(models.Model):
     is_actively_traded = models.BooleanField(default=True)
     average_volume = models.BigIntegerField(null=True, blank=True)
     last_price = models.DecimalField(max_digits=18, decimal_places=6, null=True, blank=True)
-    price_updated_at = models.DateTimeField(null=True, blank=True)
 
     data_source = models.CharField(max_length=50, default='yfinance')
     created_at = models.DateTimeField(auto_now_add=True)
