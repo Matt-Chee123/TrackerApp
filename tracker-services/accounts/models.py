@@ -47,7 +47,6 @@ class Transactions(models.Model):
         ('buy', 'Buy'),
         ('sell', 'Sell')
     ]
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)  # Changed from portfolio
     holding = models.ForeignKey(Holdings, on_delete=models.CASCADE)
     transaction_type = models.CharField(max_length=4, choices=TRANSACTION_TYPE)
     quantity = models.DecimalField(max_digits=15, decimal_places=6)

@@ -38,4 +38,10 @@ class PortfolioService:
             #TODO: check if holding already exists, if so add to that, if not create a new one
             # then create lot and transaction for this
 
+    def add_transaction(self, account_id, symbol):
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT * FROM holdings
+            """)
+
 
