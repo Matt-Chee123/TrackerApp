@@ -10,7 +10,7 @@ class Security(models.Model):
     symbol = models.CharField(max_length=20, unique=True, primary_key=True)
     isin = models.CharField(max_length=12, null=True, blank=True, unique=True)
     cusip = models.CharField(max_length=9, null=True, blank=True)
-    name = models.CharField(max_length=200)
+    cusip = models.CharField(max_length=200)
     short_name = models.CharField(max_length=50, null=True, blank=True)
 
     asset_class = models.CharField(max_length=20, choices=[
