@@ -45,12 +45,21 @@ class Holdings(models.Model):
 class Transactions(models.Model):
     TRANSACTION_TYPE = [
         ('buy', 'Buy'),
-        ('sell', 'Sell')
+        ('sell', 'Sell'),
+        ('deposit', 'Cash Deposit'),
+        ('withdrawal', 'Cash Withdrawal'),
+        ('dividend', 'Dividend'),
+        ('fee', 'Fee'),
+        ('interest', 'Interest'),
     ]
-    holding = models.ForeignKey(Holdings, on_delete=models.CASCADE)
-    transaction_type = models.CharField(max_length=4, choices=TRANSACTION_TYPE)
-    quantity = models.DecimalField(max_digits=15, decimal_places=6)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    holding = models.ForeignKey(Holdings, on_delete=models.CASCADE, null=True, blank=True)
+    transaction_type = models.CharField(max_length=10, choices=TRANSACTION_TYPE)
+    quantity = models.DecimalField(max_digits=15, decimal_places=6, null=True, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    amount = models.DecimalField(max_digits=15, decimal_places=2)
+    description = models.TextField(blank=True)
     fees = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     transaction_date = models.DateTimeField()
     created_date = models.DateTimeField(auto_now_add=True)
