@@ -29,7 +29,7 @@ class RiskMetricsService:
     def get_risk_free(self):
         with connection.cursor() as cursor:
             cursor.execute("""
-                SELECT last_price FROM security WHERE symbol = '^TNX';
+                SELECT current_price FROM security WHERE symbol = '^TNX';
             """)
 
             row = cursor.fetchone()

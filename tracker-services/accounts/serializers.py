@@ -1,13 +1,13 @@
 from rest_framework import serializers
-from .models import Account, Holdings, Transactions
+from .models import Portfolio, Holding, Transaction
 
-class AccountSerializer(serializers.ModelSerializer):
+class PortfolioSerializer(serializers.ModelSerializer):
     total_value = serializers.SerializerMethodField()
     total_holdings = serializers.SerializerMethodField()
     daily_pnl = serializers.SerializerMethodField()
 
     class Meta:
-        model = Account
+        model = Portfolio
         fields = [
             'id','account_name','user','total_value','total_holdings','daily_pnl'
         ]
@@ -24,12 +24,12 @@ class AccountSerializer(serializers.ModelSerializer):
     def get_daily_pnl(self, obj): #TODO Do this one
         return
 
-class TransactionsSerializer(serializers.ModelSerializer):
+class TransactionSerializer(serializers.ModelSerializer):
     total_value = serializers.SerializerMethodField()
     transaction_type_display = serializers.CharField(source='get_transaction_type_display', read_only=True)
 
     class Meta:
-        model = Transactions
+        model = Transaction
         fields = [
             'id', 'transaction_type', 'transaction_type_display', 'quantity',
             'price', 'fees', 'transaction_date', 'created_date',
@@ -40,13 +40,13 @@ class TransactionsSerializer(serializers.ModelSerializer):
         return (obj.quantity * obj.price) + obj.fees
 
 
-class HoldingsSerializer(serializers.ModelSerializer):
+class HoldingSerializer(serializers.ModelSerializer):
     current_value = serializers.SerializerMethodField()
     total_cost = serializers.SerializerMethodField()
     unrealized_pnl = serializers.SerializerMethodField()
 
     class Meta:
-        model = Holdings
+        model = Holding
         fields = [
             'id', 'name', 'code', 'state', 'quantity', 'current_price',
             'created_date', 'last_updated',

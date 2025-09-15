@@ -33,7 +33,7 @@ class MarketSnapshotService:
 
             row = {
                 'security': symbol,
-                'last_price': info.get('currentPrice'),
+                'current_price': info.get('currentPrice'),
                 'bid_price': info.get('bid'),
                 'ask_price': info.get('ask'),
                 'bid_size': info.get('bidSize'),
@@ -52,8 +52,8 @@ class MarketSnapshotService:
 
         return df
 
-    def calculate_change_amount(self, last_price, previous_close):
-        change_amount = last_price - previous_close
+    def calculate_change_amount(self, current_price, previous_close):
+        change_amount = current_price - previous_close
         change_perc = change_amount / previous_close * 100
         return change_amount, change_perc
 
@@ -71,7 +71,7 @@ class MarketSnapshotService:
 
     def create_snapshot_df(self):
         columns = [
-            'security', 'last_price', 'bid_price', 'ask_price',
+            'security', 'current_price', 'bid_price', 'ask_price',
             'bid_size', 'ask_size', 'open_price', 'high_price',
             'low_price', 'volume', 'change_amount', 'change_percent',
             'market_timestamp', 'previous_close'
@@ -88,11 +88,11 @@ class MarketSnapshotService:
         for _, row in self.market_data.iterrows():
             symbol = row['security']
             volume_data = avg_volumes[symbol]
-            if math.isnan(row['last_price']):
+            if math.isnan(row['current_price']):
                 print("last price doesn't exist")
-                row['last_price'] = yf.Ticker(symbol).history(period="1d")['Close'].iloc[-1]
+                row['current_price'] = yf.Ticker(symbol).history(period="1d")['Close'].iloc[-1]
 
-            row['change_amount'], row['change_percent'] = self.calculate_change_amount(row['last_price'], row['previous_close'])
+            row['change_amount'], row['change_percent'] = self.calculate_change_amount(row['current_price'], row['previous_close'])
 
             try:
                 security_obj = Security.objects.get(symbol=symbol)
@@ -106,7 +106,7 @@ class MarketSnapshotService:
             MarketSnapshot.objects.update_or_create(
                 security=security_obj,
                 defaults={
-                    'last_price': to_decimal(row['last_price']),
+                    'current_price': to_decimal(row['current_price']),
                     'bid_price': to_decimal(row['bid_price']),
                     'ask_price': to_decimal(row['ask_price']),
                     'bid_size': row['bid_size'],

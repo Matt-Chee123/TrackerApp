@@ -1,6 +1,6 @@
 from decimal import Decimal
 from django.utils import timezone
-from accounts.models import Account, Holdings, Lots, Security, Transactions
+from accounts.models import Portfolio, Holding, Lot, Security, Transaction
 from securities.models import Security
 from django.db import connection
 
@@ -35,7 +35,7 @@ class PortfolioService:
 					SUM(h.current_price * h.quantity) AS total_value,
 					SUM(h.unrealized_gain_loss) AS gain,
 					SUM(h.total_cost_basis) AS total_cost
-                  FROM holdings h
+                  FROM holding h
 				  GROUP BY h.account_id
                                 )
                 UPDATE portfolio
@@ -58,18 +58,18 @@ class PortfolioService:
                 WITH lot_unrealised AS (
                   SELECT
                     l.holding_id AS holding,
-                    SUM((s.last_price - l.purchase_price) * l.remaining_quantity) AS unrealised_pnl,
+                    SUM((s.current_price - l.purchase_price) * l.remaining_quantity) AS unrealised_pnl,
                     SUM(l.remaining_quantity * l.purchase_price + l.fees) AS total_cost,
                     SUM(l.remaining_quantity) AS quantity
                   FROM lots l
-                  JOIN holdings h ON h.id = l.holding_id
+                  JOIN holding h ON h.id = l.holding_id
                   JOIN security s ON h.code_id = s.symbol
                   WHERE l.is_closed = false
                   GROUP BY l.holding_id
                 )
-                UPDATE holdings
+                UPDATE holding
                 SET
-                  current_price = s.last_price,
+                  current_price = s.current_price,
                   quantity = lu.quantity,
                   last_updated = NOW(),
 				  total_cost_basis = lu.total_cost,
@@ -80,14 +80,14 @@ class PortfolioService:
                   END
                 FROM lot_unrealised lu,
                      security s
-                WHERE holdings.id = lu.holding
-                AND holdings.code_id = s.symbol;
+                WHERE holding.id = lu.holding
+                AND holding.code_id = s.symbol;
             """)
 
     def update_holdings_from_prices(self):
         with connection.cursor() as cursor:
             cursor.execute("""
-                SELECT * FROM holdings
+                SELECT * FROM holding
             """)
 
     def calculate_holding_pnl(self):
@@ -110,7 +110,7 @@ class PortfolioService:
     def get_all_holdings(self):
         with connection.cursor() as cursor:
             cursor.execute("""
-                SELECT * FROM holdings
+                SELECT * FROM holding
             """)
             columns = [col[0] for col in cursor.description]
             rows = cursor.fetchall()
@@ -128,9 +128,9 @@ class PortfolioService:
     def update_holding_pnl(self,holding, value):
         with connection.cursor() as cursor:
             cursor.execute("""
-            UPDATE holdings
+            UPDATE holding
             SET unrealized_gain_loss = %s, last_updated = NOW()
-            WHERE holdings.id = %s;
+            WHERE holding.id = %s;
                         """, [value, holding])
 
     def calculate_unrealised_pnl(self, holding,lots):

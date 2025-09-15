@@ -1,4 +1,4 @@
-from accounts.models import Account, Holdings, Transactions, Lots
+from accounts.models import Portfolio, Holding, Transaction, Lot
 from securities.models import Security
 from django.db import connection, transaction
 from django.utils import timezone
@@ -31,7 +31,7 @@ class PortfolioService:
         with connection.cursor() as cursor:
             cursor.execute("""
             SELECT name, code_id, state, quantity, current_price, unrealized_gain_loss
-             FROM holdings
+             FROM holding
             WHERE account_id = %s;""", [portfolio_id])
             columns = [col[0] for col in cursor.description]  # get column names
             holdings_data = [

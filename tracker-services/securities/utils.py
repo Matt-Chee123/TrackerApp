@@ -88,7 +88,7 @@ def update_stock_price(symbol):
 
         if not hist.empty:
             latest_close = hist['Close'].iloc[-1]
-            security.last_price = Decimal(str(latest_close))
+            security.current_price = Decimal(str(latest_close))
             security.price_updated_at = timezone.now()
             security.save()
 

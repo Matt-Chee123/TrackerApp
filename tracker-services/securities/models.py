@@ -62,7 +62,7 @@ class Security(models.Model):
     # Trading info
     is_actively_traded = models.BooleanField(default=True)
     average_volume = models.BigIntegerField(null=True, blank=True)
-    last_price = models.DecimalField(max_digits=18, decimal_places=6, null=True, blank=True)
+    current_price = models.DecimalField(max_digits=18, decimal_places=6, null=True, blank=True)
 
     data_source = models.CharField(max_length=50, default='yfinance')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -86,7 +86,7 @@ class MarketSnapshot(models.Model):
 
     security = models.OneToOneField(Security, on_delete=models.CASCADE, related_name='current_market_data')
 
-    last_price = models.DecimalField(max_digits=18, decimal_places=6)
+    current_price = models.DecimalField(max_digits=18, decimal_places=6)
     bid_price = models.DecimalField(max_digits=18, decimal_places=6, null=True, blank=True)
     ask_price = models.DecimalField(max_digits=18, decimal_places=6, null=True, blank=True)
     bid_size = models.BigIntegerField(null=True, blank=True)
@@ -108,7 +108,7 @@ class MarketSnapshot(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.security.symbol} - ${self.last_price}"
+        return f"{self.security.symbol} - ${self.current_price}"
 
 
 class PriceHistory(models.Model):

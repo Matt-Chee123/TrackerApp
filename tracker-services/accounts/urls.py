@@ -4,9 +4,9 @@ from django.urls import path, include
 from . import views
 
 router = DefaultRouter()
-router.register(r'accounts',views.AccountViewSet)
-router.register(r'transactions',views.TransactionsViewSet)
-router.register(r'holdings',views.HoldingsViewSet)
+router.register(r'accounts',views.PortfolioViewSet)
+router.register(r'transactions',views.TransactionViewSet)
+router.register(r'holdings',views.HoldingViewSet)
 
 urlpatterns = [
     path('api/accounts/', include(router.urls)),

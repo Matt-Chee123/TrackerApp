@@ -21,13 +21,13 @@ class SecurityService:
         with connection.cursor() as cursor:
             cursor.execute("""
                     WITH snapshot_data AS (
-                        SELECT security_id, last_price 
+                        SELECT security_id, current_price 
                         FROM securities_marketsnapshot
                     )
                     UPDATE security
-                        SET last_price = sd.last_price,
+                        SET current_price = sd.current_price,
                         price_updated_at = NOW(),
-                        market_cap = sd.last_price * shares_outstanding
+                        market_cap = sd.current_price * shares_outstanding
                     FROM snapshot_data AS sd
                     WHERE symbol = sd.security_id
                     """)

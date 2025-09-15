@@ -11,14 +11,14 @@ class PortfolioService:
         with connection.cursor() as cursor:
             cursor.execute("""
                 UPDATE security 
-                    SET last_price = %s, updated_at = NOW() WHERE symbol = %s;
+                    SET current_price = %s, updated_at = NOW() WHERE symbol = %s;
             """, [price, symbol])
             return True
 
     def get_security_price(self, symbol):
         with connection.cursor() as cursor:
             cursor.execute("""
-                SELECT last_price, updated_at FROM 
+                SELECT current_price, updated_at FROM 
                 security WHERE symbol = %s;
             """, [symbol])
             security_price = cursor.fetchone()

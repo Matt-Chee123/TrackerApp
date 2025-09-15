@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models import Account, Holdings
+from accounts.models import Portfolio, Holding
 from securities.models import Security
 
 class SecuritySerializer(serializers.ModelSerializer):
@@ -15,7 +15,7 @@ class SecuritySerializer(serializers.ModelSerializer):
 class HoldingSerializer(serializers.ModelSerializer):
     security = SecuritySerializer(read_only=True)
     class Meta:
-        model = Holdings
+        model = Holding
         fields = ["name","code","account_id","state","quantity"
             ,"current_price","created_at","created_date","last_updated"
             ,"target_weight","actual_weight","last_rebalance_date"
@@ -26,7 +26,7 @@ class HoldingSerializer(serializers.ModelSerializer):
 class PortfolioSerializer(serializers.ModelSerializer):
     holdings = HoldingSerializer(source='holding_set', many=True, read_only=True)
     class Meta:
-        model = Account
+        model = Portfolio
         fields = ["id","account_name","user","total_market_value"
             ,"cash_balance","net_worth","unrealized_gain_loss"
             ,"unrealized_gain_loss_pct","last_rebalance_date"
