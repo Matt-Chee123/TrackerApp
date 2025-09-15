@@ -14,6 +14,7 @@ class PortfolioDetailView(generics.RetrieveAPIView):
     queryset = Account.objects.all()
     serializer_class = PortfolioSerializer
 
+
 @api_view(['POST'])
 def add_holding(request, portfolio_id):
     try:
@@ -39,3 +40,9 @@ def portfolio_value(request, portfolio_id):
     service = PortfolioService()
     total_value = service.get_portfolio_value(portfolio_id)
     return Response({'portfolio_id': portfolio_id, 'total_value': total_value})
+
+@api_view(['GET'])
+def portfolio_holdings(request, portfolio_id):
+    service = PortfolioService()
+    holdings = service.get_portfolio_holdings(portfolio_id)
+    return Response({'portfolio_id': portfolio_id, 'holdings': holdings})

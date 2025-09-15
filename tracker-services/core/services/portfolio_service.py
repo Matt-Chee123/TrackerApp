@@ -27,6 +27,18 @@ class PortfolioService:
             portfolio_data = cursor.fetchone()
             return portfolio_data
 
+    def get_portfolio_holdings(self, portfolio_id):
+        with connection.cursor() as cursor:
+            cursor.execute("""
+            SELECT name, code_id, state, quantity, current_price, unrealized_gain_loss
+             FROM holdings
+            WHERE account_id = %s;""", [portfolio_id])
+            columns = [col[0] for col in cursor.description]  # get column names
+            holdings_data = [
+                dict(zip(columns, row)) for row in cursor.fetchall()
+            ]
+            return holdings_data
+
     @transaction.atomic
     def add_holding(self, account_id, symbol, quantity, price, fees=0, transaction_date=None):
         transaction_date = transaction_date or timezone.now()
