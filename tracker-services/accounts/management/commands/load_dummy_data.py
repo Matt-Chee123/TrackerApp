@@ -111,7 +111,7 @@ class Command(BaseCommand):
                 symbol=security_data['symbol'],
                 defaults={
                     **security_data,
-                    'last_updated': timezone.now()  # Updated field name
+                    'updated_at': timezone.now()  # Updated field name
                 }
             )
             if created:
