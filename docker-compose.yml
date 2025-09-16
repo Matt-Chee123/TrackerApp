@@ -10,9 +10,15 @@ services:
           echo 'Waiting for database to be ready...';
           sleep 2;
         done;
+        # Wait for Redis to be ready
+        until redis-cli -h redis ping; do
+          echo 'Waiting for Redis to be ready...';
+          sleep 2;
+        done;
         # Run migrations and load dummy data
         python manage.py makemigrations &&
         python manage.py migrate &&
+        python manage.py migrate django_celery_beat &&
         python manage.py load_dummy_data &&
         python manage.py runserver 0.0.0.0:8000
       "
@@ -24,6 +30,102 @@ services:
       - ./tracker-services/.env
     depends_on:
       - db
+      - redis
+
+  # Add Redis service
+  redis:
+    image: redis:7-alpine
+    container_name: redis-cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  # Add Celery Worker
+  celery_worker:
+    build:
+      context: ./tracker-services
+      dockerfile: Dockerfile
+    command: >
+      sh -c "
+        # Wait for Redis and DB
+        until redis-cli -h redis ping; do
+          echo 'Waiting for Redis...';
+          sleep 2;
+        done;
+        until pg_isready -h db -p 5432; do
+          echo 'Waiting for database...';
+          sleep 2;
+        done;
+        # Start Celery worker
+        celery -A app worker --loglevel=debug --queues=default,securities,dividends,accounts --concurrency=4
+      "
+    volumes:
+      - ./tracker-services:/app
+    env_file:
+      - ./tracker-services/.env
+    depends_on:
+      - db
+      - redis
+      - backend
+    restart: unless-stopped
+
+  # Add Celery Beat (Scheduler)
+  celery_beat:
+    build:
+      context: ./tracker-services
+      dockerfile: Dockerfile
+    command: >
+      sh -c "
+        # Wait for services
+        until redis-cli -h redis ping; do
+          echo 'Waiting for Redis...';
+          sleep 2;
+        done;
+        until pg_isready -h db -p 5432; do
+          echo 'Waiting for database...';
+          sleep 2;
+        done;
+        # Wait a bit more for migrations to complete
+        sleep 10;
+        # Start Celery beat
+      celery -A app beat --loglevel=info
+      "
+    volumes:
+      - ./tracker-services:/app
+    env_file:
+      - ./tracker-services/.env
+    depends_on:
+      - db
+      - redis
+      - backend
+    restart: unless-stopped
+
+  # Add Flower (Celery Monitoring)
+  flower:
+    build:
+      context: ./tracker-services
+      dockerfile: Dockerfile
+    command: >
+      sh -c "
+        # Wait for Redis
+        until redis-cli -h redis ping; do
+          echo 'Waiting for Redis...';
+          sleep 2;
+        done;
+        # Start Flower
+        celery -A app flower --port=5555
+      "
+    ports:
+      - "5555:5555"
+    volumes:
+      - ./tracker-services:/app
+    env_file:
+      - ./tracker-services/.env
+    depends_on:
+      - redis
+    restart: unless-stopped
 
   frontend:
     build:
@@ -64,3 +166,4 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:  # Add Redis volume
