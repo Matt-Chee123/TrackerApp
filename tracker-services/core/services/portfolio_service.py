@@ -21,10 +21,29 @@ class PortfolioService:
     def get_portfolio_value(self, portfolio_id):
         with connection.cursor() as cursor:
             cursor.execute("""
-                SELECT account_name, cash_balance, total_market_value, net_worth 
-                FROM portfolio WHERE id = %s;
-            """, [portfolio_id])
-            portfolio_data = cursor.fetchone()
+            WITH holdings_sum AS (
+                SELECT SUM(average_cost * quantity) AS securities_value
+                FROM holdings
+                WHERE portfolio_id = %s
+            )
+            SELECT p.name,
+                   p.cash_balance,
+                   h.securities_value,
+                   (h.securities_value + p.cash_balance) AS net_worth
+            FROM portfolio p
+            CROSS JOIN holdings_sum h
+            WHERE p.id = %s;
+            """, [portfolio_id, portfolio_id])
+            name, cash_balance, securities_value ,net_worth = cursor.fetchone()
+            portfolio_data = {
+                'name': name,
+                'cash_balance': cash_balance or 0,
+                'securities_value': securities_value or 0,
+                'net_worth': net_worth or 0
+            }
+            print("xxxxxxxxxx")
+            print(portfolio_data['cash_balance'])
+            print("xxxxxxxxxx")
             return portfolio_data
 
     def get_portfolio_holdings(self, portfolio_id):
@@ -33,7 +52,7 @@ class PortfolioService:
             SELECT name, code_id, state, quantity, current_price, unrealized_gain_loss
              FROM holding
             WHERE account_id = %s;""", [portfolio_id])
-            columns = [col[0] for col in cursor.description]  # get column names
+            columns = [col[0] for col in cursor.description]
             holdings_data = [
                 dict(zip(columns, row)) for row in cursor.fetchall()
             ]

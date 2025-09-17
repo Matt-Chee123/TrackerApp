@@ -391,14 +391,15 @@ class Command(BaseCommand):
                 # Calculate portfolio value for this date
                 # (In real implementation, would use historical prices)
                 portfolio_value = portfolio_service.get_portfolio_value(portfolio.id)
+                print(portfolio_value)
 
                 PortfolioSnapshot.objects.get_or_create(
                     portfolio=portfolio,
                     date=snapshot_date,
                     defaults={
-                        'total_value': portfolio_value['net_worth'],
-                        'cash_balance': portfolio.cash_balance,
-                        'securities_value': portfolio_value['securities_value']
+                        'total_value': int(portfolio_value['net_worth']),
+                        'cash_balance': int(portfolio_value['cash_balance']),
+                        'securities_value': int(portfolio_value['securities_value'])
                     }
                 )
 

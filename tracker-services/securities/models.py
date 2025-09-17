@@ -121,7 +121,7 @@ class PriceHistory(models.Model):
     high_price = models.DecimalField(max_digits=18, decimal_places=6)
     low_price = models.DecimalField(max_digits=18, decimal_places=6)
     close_price = models.DecimalField(max_digits=18, decimal_places=6)
-    adjusted_close = models.DecimalField(max_digits=18, decimal_places=6)
+    adjusted_close = models.DecimalField(max_digits=18, decimal_places=6, null=True, blank=True)
     volume = models.BigIntegerField()
 
     dividend_amount = models.DecimalField(max_digits=12, decimal_places=6, default=Decimal('0'))
